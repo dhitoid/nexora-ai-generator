@@ -1613,9 +1613,7 @@ import {
 import {
 
   getAuth,
-
   signInAnonymously,
-
   onAuthStateChanged
 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -1623,23 +1621,15 @@ import {
 import {
 
   getFirestore,
-
   doc,
-
   getDoc,
-
   updateDoc,
-
   serverTimestamp,
 
   setDoc,
-
   deleteDoc,
-
   getDocs,
-
   collection,
-
   onSnapshot
 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -1657,11 +1647,7 @@ const firebaseConfig = {
 
 };
 
-/* =========================================
-
-   INIT
-
-========================================= */
+/* INIT */
 
 const app =
 
@@ -1675,43 +1661,7 @@ const db =
 
   getFirestore(app);
 
-/* =========================================
-
-   GLOBAL
-
-========================================= */
-
-window.db = db;
-
-window.firebaseTools = {
-
-  doc,
-
-  getDoc,
-
-  updateDoc,
-
-  serverTimestamp,
-
-  setDoc,
-
-  deleteDoc,
-
-  getDocs,
-
-  collection,
-
-  onSnapshot
-
-};
-
-window.firebaseReady = false;
-
-/* =========================================
-
-   LOGIN
-
-========================================= */
+/* LOGIN */
 
 signInAnonymously(auth)
 
@@ -1731,143 +1681,91 @@ signInAnonymously(auth)
 
   });
 
+/* GLOBAL */
+
+window.db = db;
+
+window.firebaseReady = true;
+
+window.firebaseTools = {
+
+  doc,
+  getDoc,
+  updateDoc,
+  serverTimestamp,
+
+  setDoc,
+  deleteDoc,
+  getDocs,
+  collection,
+  
+  onSnapshot
+
+};
+
+window.firebaseReady = true;
+
 /* =========================================
-
    USER DATABASE SYSTEM
-
 ========================================= */
 
 onAuthStateChanged(auth, async user => {
 
   if(!user) return;
 
-  try{
+  const uid = user.uid;
 
-    const uid = user.uid;
+  window.currentUID = uid;
 
-    window.currentUID = uid;
+  const userRef =
+    doc(db, 'users', uid);
 
-    const userRef =
+  const userSnap =
+    await getDoc(userRef);
 
-      doc(db, 'users', uid);
+  /* NEW USER */
 
-    const userSnap =
+  if(!userSnap.exists()){
 
-      await getDoc(userRef);
+    await setDoc(userRef, {
 
-    /* NEW USER */
+      uid,
 
-    if(!userSnap.exists()){
+      plan:'FREE',
 
-      await setDoc(userRef, {
+      expires:null,
 
-        uid,
+      generations:0,
 
-        plan:'FREE',
+      online:true,
 
-        expires:null,
+      createdAt:
+        serverTimestamp(),
 
-        generations:0,
+      lastActive:
+        serverTimestamp()
 
-        online:true,
-
-        createdAt:
-
-          serverTimestamp(),
-
-        lastActive:
-
-          serverTimestamp()
-
-      });
-
-    } else {
-
-      /* UPDATE ONLINE */
-
-      await updateDoc(userRef, {
-
-        online:true,
-
-        lastActive:
-
-          serverTimestamp()
-
-      });
-
-    }
-
-    console.log(
-
-      '👤 User Synced'
-
-    );
-
-    /* READY */
-
-    window.firebaseReady = true;
-
-  } catch(err){
-
-    console.error(
-
-      'Firebase User Error:',
-
-      err
-
-    );
+    });
 
   }
+
+  /* UPDATE ONLINE */
+
+  await updateDoc(userRef, {
+
+    online:true,
+
+    lastActive:
+      serverTimestamp()
+
+  });
+
+  console.log(
+    '👤 User Synced'
+  );
+  window.firebaseReady = true;
 
 });
-
-/* =========================================
-
-   USER OFFLINE
-
-========================================= */
-
-window.addEventListener(
-
-  'beforeunload',
-
-  async () => {
-
-    if(!window.currentUID) return;
-
-    try{
-
-      const userRef =
-
-        doc(
-
-          db,
-
-          'users',
-
-          window.currentUID
-
-        );
-
-      await updateDoc(userRef, {
-
-        online:false,
-
-        lastActive:
-
-          serverTimestamp()
-
-      });
-
-    } catch(err){
-
-      console.error(err);
-
-    }
-
-  }
-
-);
 
 </script>
 
@@ -3412,21 +3310,18 @@ function startRealtimeCodes(){
    START REALTIME
 ========================================= */
 
+/* START REALTIME */
+
 const realtimeInterval =
   setInterval(() => {
 
-  if(
-    window.firebaseReady &&
-    window.firebaseTools &&
-    window.db
-  ){
+  if(window.firebaseReady){
 
     clearInterval(
       realtimeInterval
     );
 
     startRealtimeUsers();
-
     startRealtimeCodes();
 
     console.log(
@@ -3505,6 +3400,15 @@ const firebaseInterval =
 
 function startRealtimeUsers(){
 
+  const usersList =
+    document.getElementById(
+      'usersList'
+    );
+
+  if(!usersList){
+    return;
+  }
+
   const usersRef =
 
     window.firebaseTools.collection(
@@ -3537,11 +3441,18 @@ function startRealtimeUsers(){
         }
 
         if(data.online){
-            online++;
-          }
+          online++;
+        }
 
         generations +=
           data.generations || 0;
+
+        /* SAFE UID */
+
+        const uid =
+          data.uid
+          ? data.uid
+          : docSnap.id;
 
         html += `
 
@@ -3550,7 +3461,7 @@ function startRealtimeUsers(){
             <div class="user-top">
 
               <b>
-                ${data.uid.slice(0,12)}...
+                ${uid.slice(0,12)}...
               </b>
 
               <span class="
@@ -3560,7 +3471,7 @@ function startRealtimeUsers(){
                   : 'free-badge'
                 }
               ">
-                ${data.plan}
+                ${data.plan || 'FREE'}
               </span>
 
             </div>
@@ -3591,7 +3502,7 @@ function startRealtimeUsers(){
               <button
                 onclick="
                   removeProUser(
-                    '${data.uid}'
+                    '${uid}'
                   )
                 "
               >
@@ -3624,7 +3535,17 @@ function startRealtimeUsers(){
         'totalGenerations'
       ).innerHTML = generations;
 
-      usersList.innerHTML = html;
+      usersList.innerHTML =
+        html || 'No Users Found';
+
+    },
+
+    err => {
+
+      console.error(
+        'Realtime Users Error:',
+        err
+      );
 
     }
 
