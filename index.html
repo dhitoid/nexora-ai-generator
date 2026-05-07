@@ -733,6 +733,59 @@ textarea{
   transform:translateY(-2px);
 }
 
+/* ADMIN */
+
+.admin-box{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-bottom:20px;
+}
+
+.admin-box button,
+.admin-input button{
+  padding:16px;
+  border:none;
+  border-radius:16px;
+  background:linear-gradient(
+    135deg,
+    #7B61FF,
+    #00C2FF
+  );
+  color:white;
+  cursor:pointer;
+  font-weight:600;
+}
+
+.admin-input{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-bottom:20px;
+}
+
+.admin-input input{
+  width:100%;
+  padding:16px;
+  border:none;
+  border-radius:16px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.08);
+  color:white;
+  font-size:16px;
+  outline:none;
+}
+
+#adminResult{
+  margin-top:20px;
+  padding:18px;
+  border-radius:16px;
+  background:rgba(255,255,255,0.05);
+  line-height:1.8;
+  color:#DDE4F5;
+  word-break:break-word;
+}
+
 /* MOBILE */
 
 @media(max-width:768px){
@@ -1096,6 +1149,84 @@ textarea{
 
 </div>
 
+<!-- ADMIN PANEL -->
+
+<div id="adminPanel" class="modal">
+
+  <div class="modal-content">
+
+    <button id="closeAdmin">
+      ✕
+    </button>
+
+    <div class="pricing-header">
+
+      <h2>DTSCRIPTID Admin</h2>
+
+      <p>
+        Nexora AI Control Panel
+      </p>
+
+    </div>
+
+    <!-- USER INFO -->
+
+    <div class="admin-box">
+
+      <button id="checkUserBtn">
+        Check User
+      </button>
+
+      <button id="resetLimitBtn">
+        Reset Limit
+      </button>
+
+      <button id="removeProBtn">
+        Remove Pro
+      </button>
+
+    </div>
+
+    <!-- ACTIVATE -->
+
+    <div class="admin-input">
+
+      <input
+        id="proDays"
+        type="text"
+        placeholder="30 / 7 / LIFETIME"
+      >
+
+      <button id="activateProBtn">
+        Activate Pro
+      </button>
+
+    </div>
+
+    <!-- GENERATE CODE -->
+
+    <div class="admin-input">
+
+      <input
+        id="generateDays"
+        type="text"
+        placeholder="Generate code days"
+      >
+
+      <button id="generateCodeBtn">
+        Create Code
+      </button>
+
+    </div>
+
+    <!-- RESULT -->
+
+    <div id="adminResult"></div>
+
+  </div>
+
+</div>
+
 <script>
 
 /* =========================================
@@ -1264,6 +1395,10 @@ tabButtons.forEach(btn => {
 ========================================= */
 
 generateBtn.addEventListener('click', async () => {
+
+  /* CHECK ACCESS */
+
+  if(!canGenerate()) return;
 
   navigator.vibrate?.(30);
 
@@ -1979,39 +2114,47 @@ function updatePlanBadge(){
 updatePlanBadge();
 
 /* =========================================
-   GENERATE LIMIT
+   ACCESS CONTROL
 ========================================= */
 
-generateBtn.addEventListener('click', e => {
+function canGenerate(){
 
-  if(userData.plan !== 'PRO'){
+  /* PRO USER */
 
-    if(usageData.count >= DAILY_LIMIT){
+  if(userData.plan === 'PRO'){
 
-      e.preventDefault();
-
-      showToast(
-        '⏳ Free limit reached. Come back tomorrow.'
-      );
-
-      openProModal();
-
-      return;
-
-    }
-
-    usageData.count++;
-
-    localStorage.setItem(
-      'nexoraUsage',
-      JSON.stringify(usageData)
-    );
-
-    updatePlanBadge();
+    return true;
 
   }
 
-});
+  /* FREE LIMIT */
+
+  if(usageData.count >= DAILY_LIMIT){
+
+    showToast(
+      '⏳ Free limit reached. Try again tomorrow.'
+    );
+
+    openProModal();
+
+    return false;
+
+  }
+
+  /* COUNT */
+
+  usageData.count++;
+
+  localStorage.setItem(
+    'nexoraUsage',
+    JSON.stringify(usageData)
+  );
+
+  updatePlanBadge();
+
+  return true;
+
+}
 
 /* =========================================
    REDEEM SYSTEM
@@ -2189,6 +2332,199 @@ function launchConfetti(){
   }
 
 }
+
+/* =========================================
+   HIDDEN ADMIN PANEL
+========================================= */
+
+const adminPanel =
+  document.getElementById('adminPanel');
+
+const closeAdmin =
+  document.getElementById('closeAdmin');
+
+const adminResult =
+  document.getElementById('adminResult');
+
+/* OPEN SECRET */
+
+let logoTap = 0;
+
+document
+  .querySelector('.logo')
+  .addEventListener('click', () => {
+
+    logoTap++;
+
+    if(logoTap >= 5){
+
+      adminPanel.classList.add('show');
+
+      logoTap = 0;
+
+      showToast(
+        '🛠 Admin Panel Opened'
+      );
+
+    }
+
+});
+
+/* CLOSE */
+
+closeAdmin.addEventListener('click', () => {
+
+  adminPanel.classList.remove('show');
+
+});
+
+/* CHECK USER */
+
+document
+  .getElementById('checkUserBtn')
+  .addEventListener('click', () => {
+
+    adminResult.innerHTML = `
+      <b>PLAN:</b> ${userData.plan}<br>
+      <b>EXPIRES:</b> ${userData.expires}<br>
+      <b>USAGE:</b> ${usageData.count}/${DAILY_LIMIT}
+    `;
+
+});
+
+/* RESET LIMIT */
+
+document
+  .getElementById('resetLimitBtn')
+  .addEventListener('click', () => {
+
+    usageData.count = 0;
+
+    localStorage.setItem(
+      'nexoraUsage',
+      JSON.stringify(usageData)
+    );
+
+    updatePlanBadge();
+
+    showToast(
+      '✨ Limit Reset Success'
+    );
+
+});
+
+/* REMOVE PRO */
+
+document
+  .getElementById('removeProBtn')
+  .addEventListener('click', () => {
+
+    userData = {
+
+      plan:'FREE',
+      expires:null
+
+    };
+
+    localStorage.setItem(
+      'nexoraUser',
+      JSON.stringify(userData)
+    );
+
+    updatePlanBadge();
+
+    showToast(
+      '⚠️ Pro Removed'
+    );
+
+});
+
+/* ACTIVATE PRO */
+
+document
+  .getElementById('activateProBtn')
+  .addEventListener('click', () => {
+
+    const days =
+      document.getElementById('proDays')
+      .value;
+
+    let expires = 'LIFETIME';
+
+    if(days !== 'LIFETIME'){
+
+      const future =
+        new Date();
+
+      future.setDate(
+        future.getDate() +
+        Number(days)
+      );
+
+      expires =
+        future.toISOString()
+          .split('T')[0];
+
+    }
+
+    userData = {
+
+      plan:'PRO',
+      expires
+
+    };
+
+    localStorage.setItem(
+      'nexoraUser',
+      JSON.stringify(userData)
+    );
+
+    updatePlanBadge();
+
+    showToast(
+      '✨ Pro Activated'
+    );
+
+});
+
+/* CREATE CODE */
+
+document
+  .getElementById('generateCodeBtn')
+  .addEventListener('click', () => {
+
+    const days =
+      document.getElementById('generateDays')
+      .value;
+
+    const random =
+      Math.floor(
+        1000 + Math.random() * 9000
+      );
+
+    const code =
+      `DTS-${days}-${random}`;
+
+    PRO_CODES[code] = {
+
+      type:'PRO',
+      days:
+        days === 'LIFETIME'
+        ? 'LIFETIME'
+        : Number(days)
+
+    };
+
+    adminResult.innerHTML = `
+      ✅ NEW CODE:<br><br>
+      <b>${code}</b>
+    `;
+
+    showToast(
+      '✨ Code Generated'
+    );
+
+});
 
 /* =========================================
    DEMO PRO ACCESS
