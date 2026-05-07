@@ -557,6 +557,80 @@ textarea{
 
 }
 
+/* FOOTER LINK */
+
+.footer-column a{
+  cursor:pointer;
+}
+
+/* MODAL */
+
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  backdrop-filter:blur(10px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:0;
+  pointer-events:none;
+  transition:0.3s;
+  z-index:99999;
+}
+
+.modal.show{
+  opacity:1;
+  pointer-events:auto;
+}
+
+.modal-content{
+  width:min(92%,500px);
+  background:#161A24;
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:24px;
+  padding:30px;
+  position:relative;
+  animation:modalUp 0.35s ease;
+}
+
+@keyframes modalUp{
+
+  from{
+    transform:translateY(20px);
+    opacity:0;
+  }
+
+  to{
+    transform:translateY(0);
+    opacity:1;
+  }
+
+}
+
+#closeModal{
+  position:absolute;
+  top:16px;
+  right:16px;
+  width:38px;
+  height:38px;
+  border:none;
+  border-radius:12px;
+  background:rgba(255,255,255,0.06);
+  color:white;
+  cursor:pointer;
+}
+
+#modalBody h3{
+  margin-bottom:16px;
+  font-size:28px;
+}
+
+#modalBody p{
+  color:#B8C0D4;
+  line-height:1.8;
+}
+
 /* MOBILE */
 
 @media(max-width:768px){
@@ -753,7 +827,6 @@ textarea{
 </section>
 
 <div id="toast"></div>
-
 <!-- FOOTER -->
 
 <footer class="footer">
@@ -775,55 +848,61 @@ textarea{
 
     <div class="footer-links">
 
+      <!-- PRODUCT -->
+
       <div class="footer-column">
 
         <h4>Product</h4>
 
-        <a href="#">
+        <a id="footerGenerator">
           AI Generator
         </a>
 
-        <a href="#">
+        <a id="footerHooks">
           Viral Hooks
         </a>
 
-        <a href="#">
+        <a id="footerCopy">
           Smart Copywriting
         </a>
 
       </div>
 
+      <!-- BRAND -->
+
       <div class="footer-column">
 
         <h4>Brand</h4>
 
-        <a href="#">
+        <a id="footerBrand">
           DTSCRIPTID
         </a>
 
-        <a href="#">
+        <a id="footerStudio">
           Digital Studio
         </a>
 
-        <a href="#">
+        <a id="footerProducts">
           AI Products
         </a>
 
       </div>
 
+      <!-- SUPPORT -->
+
       <div class="footer-column">
 
         <h4>Support</h4>
 
-        <a href="#">
+        <a id="footerContact">
           Contact
         </a>
 
-        <a href="#">
+        <a id="footerHelp">
           Help Center
         </a>
 
-        <a href="#">
+        <a id="footerPrivacy">
           Privacy Policy
         </a>
 
@@ -843,6 +922,22 @@ textarea{
   </div>
 
 </footer>
+
+<!-- MODAL -->
+
+<div id="modal" class="modal">
+
+  <div class="modal-content">
+
+    <button id="closeModal">
+      ✕
+    </button>
+
+    <div id="modalBody"></div>
+
+  </div>
+
+</div>
 
 <script>
 
@@ -1410,6 +1505,168 @@ demoBtn.addEventListener('click', async () => {
     generateBtn.click();
 
   }, 900);
+
+});
+
+/* =========================================
+   FOOTER FEATURES
+========================================= */
+
+const modal =
+  document.getElementById('modal');
+
+const modalBody =
+  document.getElementById('modalBody');
+
+const closeModal =
+  document.getElementById('closeModal');
+
+function openModal(title, text){
+
+  modalBody.innerHTML = `
+    <h3>${title}</h3>
+    <p>${text}</p>
+  `;
+
+  modal.classList.add('show');
+
+}
+
+closeModal.addEventListener('click', () => {
+
+  modal.classList.remove('show');
+
+});
+
+modal.addEventListener('click', e => {
+
+  if(e.target === modal){
+    modal.classList.remove('show');
+  }
+
+});
+
+/* =========================================
+   PRODUCT
+========================================= */
+
+document
+  .getElementById('footerGenerator')
+  .addEventListener('click', () => {
+
+    generatorSection.scrollIntoView({
+      behavior:'smooth'
+    });
+
+});
+
+document
+  .getElementById('footerHooks')
+  .addEventListener('click', () => {
+
+    currentTab = 'tiktok';
+
+    document
+      .querySelector('[data-tab="tiktok"]')
+      .click();
+
+    generatorSection.scrollIntoView({
+      behavior:'smooth'
+    });
+
+    showToast('🔥 Viral Hooks Opened');
+
+});
+
+document
+  .getElementById('footerCopy')
+  .addEventListener('click', () => {
+
+    currentTab = 'instagram';
+
+    document
+      .querySelector('[data-tab="instagram"]')
+      .click();
+
+    generatorSection.scrollIntoView({
+      behavior:'smooth'
+    });
+
+    showToast('✨ Smart Copywriting Opened');
+
+});
+
+/* =========================================
+   BRAND
+========================================= */
+
+document
+  .getElementById('footerBrand')
+  .addEventListener('click', () => {
+
+    openModal(
+      'DTSCRIPTID',
+      'DTSCRIPTID is a digital product studio focused on building modern AI tools, SaaS products, and premium web experiences.'
+    );
+
+});
+
+document
+  .getElementById('footerStudio')
+  .addEventListener('click', () => {
+
+    openModal(
+      'Digital Studio',
+      'We create modern digital products, AI systems, landing pages, and innovative startup experiences.'
+    );
+
+});
+
+document
+  .getElementById('footerProducts')
+  .addEventListener('click', () => {
+
+    openModal(
+      'AI Products',
+      'Nexora AI is part of the DTSCRIPTID ecosystem focused on AI-powered productivity and marketing tools.'
+    );
+
+});
+
+/* =========================================
+   SUPPORT
+========================================= */
+
+document
+  .getElementById('footerContact')
+  .addEventListener('click', () => {
+
+    window.open(
+      'https://wa.me/6281802168184',
+      '_blank'
+    );
+
+});
+
+document
+  .getElementById('footerHelp')
+  .addEventListener('click', () => {
+
+    openModal(
+      'Help Center',
+      'Need help? Nexora AI helps you generate high-converting property marketing content instantly using our smart AI engine.'
+    );
+
+});
+
+document
+  .getElementById('footerPrivacy')
+  .addEventListener('click', () => {
+
+    openModal(
+      'Privacy Policy',
+      'Your data is processed locally in your browser. Nexora AI does not store personal property information on external servers.'
+    );
 
 });
 
