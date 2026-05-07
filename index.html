@@ -3170,18 +3170,27 @@ document
   .getElementById('generateCodeBtn')
   .addEventListener('click', async () => {
 
-    const days =
-      document
-        .getElementById('generateDays')
-        .value
-        .trim();
+    /* INPUT */
 
-    const name =
+    const daysInput =
       document
-        .getElementById('generateName')
-        .value
+        .getElementById('generateDays');
+
+    const nameInput =
+      document
+        .getElementById('generateName');
+
+    const days =
+      daysInput.value
         .trim()
         .toUpperCase();
+
+    const name =
+      nameInput.value
+        .trim()
+        .toUpperCase();
+
+    /* VALIDATE */
 
     if(!days){
 
@@ -3193,6 +3202,33 @@ document
 
     }
 
+    /* VALID DAYS */
+
+    let finalDays;
+
+    if(days === 'LIFETIME'){
+
+      finalDays = 'LIFETIME';
+
+    } else {
+
+      finalDays = Number(days);
+
+      if(
+        isNaN(finalDays) ||
+        finalDays <= 0
+      ){
+
+        showToast(
+          '❌ Invalid duration'
+        );
+
+        return;
+
+      }
+
+    }
+
     /* RANDOM */
 
     const random =
@@ -3200,7 +3236,7 @@ document
         1000 + Math.random() * 9000
       );
 
-    /* CODE */
+    /* CODE FORMAT */
 
     const code =
 
@@ -3210,7 +3246,7 @@ document
 
     try{
 
-      /* SAVE */
+      /* SAVE TO FIREBASE */
 
       await window.firebaseTools.setDoc(
 
@@ -3222,13 +3258,13 @@ document
 
         {
 
+          code,
+
           name:
             name || 'PRO',
 
           days:
-            days === 'LIFETIME'
-            ? 'LIFETIME'
-            : Number(days),
+            finalDays,
 
           used:false,
 
@@ -3239,6 +3275,8 @@ document
         }
 
       );
+
+      /* RESULT UI */
 
       adminResult.innerHTML = `
 
@@ -3255,14 +3293,27 @@ document
           <br><br>
 
           Duration:
-          ${days}
+          ${finalDays}
 
         </div>
 
       `;
 
+      /* RESET INPUT */
+
+      daysInput.value = '';
+      nameInput.value = '';
+
+      /* TOAST */
+
       showToast(
         '✨ Redeem Code Created'
+      );
+
+      /* REALTIME LOG */
+
+      saveLog(
+        \`🛠 Admin Created Code: ${code}\`
       );
 
     } catch(err){
@@ -3274,8 +3325,6 @@ document
       );
 
     }
-    
-    saveLog('Generated Content');
 
 });
 
@@ -3360,8 +3409,6 @@ function startRealtimeCodes(){
     }
 
   );
-  
-  saveLog('Generated Content');
 
 }
 
@@ -3369,21 +3416,31 @@ function startRealtimeCodes(){
    START REALTIME
 ========================================= */
 
+let realtimeStarted = false;
+
 const realtimeInterval =
   setInterval(() => {
 
-  if(window.firebaseReady){
+    if(
+      window.firebaseReady &&
+      !realtimeStarted
+    ){
 
-    clearInterval(realtimeInterval);
-    startRealtimeUsers();
-    startRealtimeCodes();
-    startRealtimeLogs();
+      realtimeStarted = true;
 
-    console.log(
-      '🔥 Realtime Admin Started'
-    );
+      clearInterval(
+        realtimeInterval
+      );
 
-  }
+      startRealtimeUsers();
+      startRealtimeCodes();
+      startRealtimeLogs();
+
+      console.log(
+        '🔥 Realtime Admin Started'
+      );
+
+    }
 
 }, 500);
 
