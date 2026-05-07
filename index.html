@@ -987,6 +987,96 @@ textarea{
     );
 }
 
+/* USER ITEM */
+
+.user-item{
+
+  padding:18px;
+  border-radius:18px;
+
+  background:
+    rgba(255,255,255,0.05);
+
+  border:
+    1px solid
+    rgba(255,255,255,0.08);
+
+  margin-bottom:14px;
+
+}
+
+.user-top,
+.code-top{
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  margin-bottom:10px;
+
+}
+
+.user-info,
+.code-info{
+
+  color:#AEB7D0;
+  line-height:1.7;
+  font-size:14px;
+
+}
+
+.pro-badge,
+.free-badge,
+.used-code,
+.active-code{
+
+  padding:6px 12px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:700;
+
+}
+
+.pro-badge{
+
+  background:#7B61FF;
+  color:white;
+
+}
+
+.free-badge{
+
+  background:#202534;
+  color:#B7C2E1;
+
+}
+
+.active-code{
+
+  background:#00C896;
+  color:white;
+
+}
+
+.used-code{
+
+  background:#FF5F6D;
+  color:white;
+
+}
+
+.user-actions{
+
+  margin-top:14px;
+
+}
+
+.user-actions button{
+
+  width:100%;
+
+}
+
 /* MOBILE */
 
 @media(max-width:768px){
@@ -3107,76 +3197,158 @@ document
 });
 
 /* =========================================
-   LOAD REDEEM CODES
+   REALTIME REDEEM CODES
 ========================================= */
+
+function startRealtimeCodes(){
+
+  const codesRef =
+
+    window.firebaseTools.collection(
+      window.db,
+      'redeemCodes'
+    );
+
+  window.firebaseTools.onSnapshot(
+
+    codesRef,
+
+    snapshot => {
+
+      let html = '';
+
+      snapshot.forEach(docSnap => {
+
+        const data =
+          docSnap.data();
+
+        html += `
+
+          <div class="code-item">
+
+            <div class="code-top">
+
+              <b>${docSnap.id}</b>
+
+              <span class="
+                ${
+                  data.used
+                  ? 'used-code'
+                  : 'active-code'
+                }
+              ">
+
+                ${
+                  data.used
+                  ? 'USED'
+                  : 'ACTIVE'
+                }
+
+              </span>
+
+            </div>
+
+            <div class="code-info">
+
+              Duration:
+              ${data.days}
+
+              <br>
+
+              Created:
+              ${
+                data.createdAt
+                ? 'Saved'
+                : '...'
+              }
+
+            </div>
+
+          </div>
+
+        `;
+
+      });
+
+      codesList.innerHTML =
+
+        html || 'No Codes';
+
+    }
+
+  );
+
+}
 
 /* =========================================
-   LOAD REDEEM CODES
+   START REALTIME
 ========================================= */
 
-async function loadCodes(){
+const realtimeInterval =
+  setInterval(() => {
 
-  if(!codesList) return;
+  if(window.firebaseReady){
 
-  codesList.innerHTML =
-    'Loading codes...';
+    clearInterval(realtimeInterval);
 
-  try{
+    startRealtimeUsers();
 
-    const querySnapshot =
+    startRealtimeCodes();
 
-      await window.firebaseTools.getDocs(
-
-        window.firebaseTools.collection(
-          window.db,
-          'redeemCodes'
-        )
-
-      );
-
-    let html = '';
-
-    querySnapshot.forEach(docSnap => {
-
-      const data =
-        docSnap.data();
-
-      html += `
-
-        <div class="code-item">
-
-          <b>${docSnap.id}</b>
-
-          <br>
-
-          Days:
-          ${data.days}
-
-          <br>
-
-          Used:
-          ${data.used ? 'YES' : 'NO'}
-
-        </div>
-
-      `;
-
-    });
-
-    codesList.innerHTML =
-
-      html || 'No redeem codes';
-
-  } catch(err){
-
-    console.error(err);
-
-    codesList.innerHTML =
-      err.message;
+    console.log(
+      '🔥 Realtime Admin Started'
+    );
 
   }
 
-}
+}, 500);
+
+/* =========================================
+   ONLINE STATUS
+========================================= */
+
+window.addEventListener(
+
+  'beforeunload',
+
+  async () => {
+
+    if(!window.currentUID)
+      return;
+
+    const userRef =
+
+      window.firebaseTools.doc(
+        window.db,
+        'users',
+        window.currentUID
+      );
+
+    await window.firebaseTools.setDoc(
+
+      userRef,
+
+      {
+
+        online:false,
+
+        lastActive:
+          window.firebaseTools
+            .serverTimestamp()
+
+      },
+
+      {
+
+        merge:true
+
+      }
+
+    );
+
+  }
+
+);
 
 /* WAIT FIREBASE */
 
@@ -3194,117 +3366,135 @@ const firebaseInterval =
 }, 300);
 
 /* =========================================
-   LOAD USERS
+   REALTIME USERS DATABASE
 ========================================= */
 
-async function loadUsers(){
+function startRealtimeUsers(){
 
-  const usersList =
-    document.getElementById('usersList');
+  const usersRef =
 
-  try{
+    window.firebaseTools.collection(
+      window.db,
+      'users'
+    );
 
-    const snapshot =
-      await window.firebaseTools.getDocs(
+  window.firebaseTools.onSnapshot(
 
-        window.firebaseTools.collection(
-          window.db,
-          'users'
-        )
+    usersRef,
 
-      );
+    snapshot => {
 
-    let total = 0;
-    let pro = 0;
-    let online = 0;
-    let generations = 0;
+      let total = 0;
+      let pro = 0;
+      let online = 0;
+      let generations = 0;
 
-    let html = '';
+      let html = '';
 
-    snapshot.forEach(docSnap => {
+      snapshot.forEach(docSnap => {
 
-      const data =
-        docSnap.data();
+        const data =
+          docSnap.data();
 
-      total++;
+        total++;
 
-      if(data.plan === 'PRO'){
-        pro++;
-      }
+        if(data.plan === 'PRO'){
+          pro++;
+        }
 
-      if(data.online){
-        online++;
-      }
+        if(data.online){
+          online++;
+        }
 
-      generations +=
-        data.generations || 0;
+        generations +=
+          data.generations || 0;
 
-      html += `
+        html += `
 
-        <div class="user-item">
+          <div class="user-item">
 
-          <b>${data.uid}</b>
+            <div class="user-top">
 
-          <br>
+              <b>
+                ${data.uid.slice(0,12)}...
+              </b>
 
-          Plan:
-          ${data.plan}
+              <span class="
+                ${
+                  data.plan === 'PRO'
+                  ? 'pro-badge'
+                  : 'free-badge'
+                }
+              ">
+                ${data.plan}
+              </span>
 
-          <br>
+            </div>
 
-          Exp:
-          ${data.expires || 'NONE'}
+            <div class="user-info">
 
-          <br>
+              Exp:
+              ${data.expires || 'NONE'}
 
-          Generations:
-          ${data.generations || 0}
+              <br>
 
-          <div class="user-actions">
+              Generations:
+              ${data.generations || 0}
 
-            <button
-              onclick="
-                removeProUser(
-                  '${data.uid}'
-                )
-              "
-            >
-              Remove PRO
-            </button>
+              <br>
+
+              Status:
+              ${
+                data.online
+                ? '🟢 ONLINE'
+                : '⚫ OFFLINE'
+              }
+
+            </div>
+
+            <div class="user-actions">
+
+              <button
+                onclick="
+                  removeProUser(
+                    '${data.uid}'
+                  )
+                "
+              >
+                Remove PRO
+              </button>
+
+            </div>
 
           </div>
 
-        </div>
+        `;
 
-      `;
+      });
 
-    });
+      /* ANALYTICS */
 
-    /* STATS */
+      document.getElementById(
+        'totalUsers'
+      ).innerHTML = total;
 
-    document.getElementById(
-      'totalUsers'
-    ).innerHTML = total;
+      document.getElementById(
+        'proUsers'
+      ).innerHTML = pro;
 
-    document.getElementById(
-      'proUsers'
-    ).innerHTML = pro;
+      document.getElementById(
+        'onlineUsers'
+      ).innerHTML = online;
 
-    document.getElementById(
-      'onlineUsers'
-    ).innerHTML = online;
+      document.getElementById(
+        'totalGenerations'
+      ).innerHTML = generations;
 
-    document.getElementById(
-      'totalGenerations'
-    ).innerHTML = generations;
+      usersList.innerHTML = html;
 
-    usersList.innerHTML = html;
+    }
 
-  } catch(err){
-
-    console.error(err);
-
-  }
+  );
 
 }
 
