@@ -1579,13 +1579,6 @@ textarea{
       <h3>
         Users Database
       </h3>
-      
-      <input
-        id="searchUser"
-        type="text"
-        placeholder="Search UID..."
-        class="admin-search"
-      />
 
       <div id="usersList"></div>
 
@@ -1608,34 +1601,40 @@ textarea{
 </div>
 
 <!-- FIREBASE -->
+
 <script type="module">
 
 import {
+
   initializeApp
+
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
+
   getAuth,
   signInAnonymously,
   onAuthStateChanged
+
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
+
   getFirestore,
   doc,
   getDoc,
   updateDoc,
   serverTimestamp,
+
   setDoc,
   deleteDoc,
   getDocs,
   collection,
   onSnapshot
+
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* =========================================
-   CONFIG
-========================================= */
+/* CONFIG */
 
 const firebaseConfig = {
 
@@ -1648,51 +1647,30 @@ const firebaseConfig = {
 
 };
 
-/* =========================================
-   INIT
-========================================= */
+/* INIT */
 
 const app =
+
   initializeApp(firebaseConfig);
 
 const auth =
+
   getAuth(app);
 
 const db =
+
   getFirestore(app);
 
-/* =========================================
-   GLOBAL
-========================================= */
-
-window.db = db;
-
-window.firebaseTools = {
-
-  doc,
-  getDoc,
-  updateDoc,
-  serverTimestamp,
-  setDoc,
-  deleteDoc,
-  getDocs,
-  collection,
-  onSnapshot
-
-};
-
-window.firebaseReady = false;
-
-/* =========================================
-   LOGIN
-========================================= */
+/* LOGIN */
 
 signInAnonymously(auth)
 
   .then(() => {
 
     console.log(
+
       '🔥 Firebase Connected'
+
     );
 
   })
@@ -1702,6 +1680,30 @@ signInAnonymously(auth)
     console.error(err);
 
   });
+
+/* GLOBAL */
+
+window.db = db;
+
+window.firebaseReady = true;
+
+window.firebaseTools = {
+
+  doc,
+  getDoc,
+  updateDoc,
+  serverTimestamp,
+
+  setDoc,
+  deleteDoc,
+  getDocs,
+  collection,
+  
+  onSnapshot
+
+};
+
+window.firebaseReady = true;
 
 /* =========================================
    USER DATABASE SYSTEM
@@ -1718,34 +1720,14 @@ onAuthStateChanged(auth, async user => {
     window.currentUID = uid;
 
     const userRef =
-      doc(db, 'users', uid);
 
-    /* LOCAL DATA */
+      doc(
+        db,
+        'users',
+        uid
+      );
 
-    const localUser =
-      JSON.parse(
-        localStorage.getItem(
-          'nexoraUser'
-        )
-      ) || {
-
-        plan:'FREE',
-        expires:null
-
-      };
-
-    const localUsage =
-      JSON.parse(
-        localStorage.getItem(
-          'nexoraUsage'
-        )
-      ) || {
-
-        count:0
-
-      };
-
-    /* SAVE USER */
+    /* ALWAYS SAVE USER */
 
     await setDoc(
 
@@ -1756,22 +1738,15 @@ onAuthStateChanged(auth, async user => {
         uid:uid,
 
         plan:
-          localUser.plan || 'FREE',
+          userData?.plan || 'FREE',
 
         expires:
-          localUser.expires || null,
+          userData?.expires || null,
 
         generations:
-          localUsage.count || 0,
+          usageData?.count || 0,
 
         online:true,
-
-        device:
-          navigator.userAgent,
-
-        lastSeen:
-          new Date()
-            .toLocaleString(),
 
         lastActive:
           serverTimestamp(),
@@ -1808,7 +1783,7 @@ onAuthStateChanged(auth, async user => {
 });
 
 /* =========================================
-   USER OFFLINE
+   USER ONLINE STATUS
 ========================================= */
 
 window.addEventListener(
@@ -1823,13 +1798,14 @@ window.addEventListener(
     try{
 
       const userRef =
-        doc(
-          db,
+
+        window.firebaseTools.doc(
+          window.db,
           'users',
           window.currentUID
         );
 
-      await setDoc(
+      await window.firebaseTools.setDoc(
 
         userRef,
 
@@ -1838,7 +1814,8 @@ window.addEventListener(
           online:false,
 
           lastActive:
-            serverTimestamp()
+            window.firebaseTools
+              .serverTimestamp()
 
         },
 
@@ -3403,23 +3380,25 @@ function startRealtimeCodes(){
    START REALTIME
 ========================================= */
 
+/* START REALTIME */
+
 const realtimeInterval =
   setInterval(() => {
 
-    if(window.firebaseReady){
+  if(window.firebaseReady){
 
-      clearInterval(
-        realtimeInterval
-      );
+    clearInterval(
+      realtimeInterval
+    );
 
-      startRealtimeUsers();
-      startRealtimeCodes();
+    startRealtimeUsers();
+    startRealtimeCodes();
 
-      console.log(
-        '🔥 Realtime Started'
-      );
+    console.log(
+      '🔥 Realtime Started'
+    );
 
-    }
+  }
 
 }, 500);
 
@@ -3496,7 +3475,9 @@ function startRealtimeUsers(){
       'usersList'
     );
 
-  if(!usersList) return;
+  if(!usersList){
+    return;
+  }
 
   const usersRef =
 
@@ -3523,9 +3504,6 @@ function startRealtimeUsers(){
         const data =
           docSnap.data();
 
-        const uid =
-          data.uid || docSnap.id;
-
         total++;
 
         if(data.plan === 'PRO'){
@@ -3539,23 +3517,22 @@ function startRealtimeUsers(){
         generations +=
           data.generations || 0;
 
+        /* SAFE UID */
+
+        const uid =
+          data.uid
+          ? data.uid
+          : docSnap.id;
+
         html += `
 
           <div class="user-item">
 
             <div class="user-top">
 
-              <div>
-
-                <b>
-                  ${uid.slice(0,12)}...
-                </b>
-
-                <div class="uid-mini">
-                  ${uid}
-                </div>
-
-              </div>
+              <b>
+                ${uid.slice(0,12)}...
+              </b>
 
               <span class="
                 ${
@@ -3564,42 +3541,43 @@ function startRealtimeUsers(){
                   : 'free-badge'
                 }
               ">
-
                 ${data.plan || 'FREE'}
-
               </span>
 
             </div>
 
             <div class="user-info">
 
-              <div>
-                📅 Exp:
-                ${data.expires || 'NONE'}
-              </div>
+              Exp:
+              ${data.expires || 'NONE'}
 
-              <div>
-                ⚡ Generations:
-                ${data.generations || 0}
-              </div>
+              <br>
 
-              <div>
-                🌐 Device:
-                ${
-                  data.device
-                  ? data.device.slice(0,40)
-                  : 'Unknown'
-                }
-              </div>
+              Generations:
+              ${data.generations || 0}
 
-              <div>
-                🟢 Status:
-                ${
-                  data.online
-                  ? 'ONLINE'
-                  : 'OFFLINE'
-                }
-              </div>
+              <br>
+
+              Status:
+              ${
+                data.online
+                ? '🟢 ONLINE'
+                : '⚫ OFFLINE'
+              }
+
+            </div>
+
+            <div class="user-actions">
+
+              <button
+                onclick="
+                  removeProUser(
+                    '${uid}'
+                  )
+                "
+              >
+                Remove PRO
+              </button>
 
             </div>
 
@@ -3628,7 +3606,16 @@ function startRealtimeUsers(){
       ).innerHTML = generations;
 
       usersList.innerHTML =
-        html || 'No Users';
+        html || 'No Users Found';
+
+    },
+
+    err => {
+
+      console.error(
+        'Realtime Users Error:',
+        err
+      );
 
     }
 
@@ -3686,3 +3673,4 @@ localStorage.setItem(
 
 </body>
 </html>
+
