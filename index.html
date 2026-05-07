@@ -1786,8 +1786,6 @@ signInAnonymously(auth)
 
 window.db = db;
 
-window.firebaseReady = true;
-
 window.firebaseTools = {
 
   doc,
@@ -1804,7 +1802,7 @@ window.firebaseTools = {
 
 };
 
-window.firebaseReady = true;
+window.firebaseReady = false;
 
 /* =========================================
    USER DATABASE SYSTEM
@@ -3844,6 +3842,7 @@ async function banUser(uid){
 ========================================= */
 
 let showAllUsers = false;
+let usersListener = null;
 
 function toggleUsers(){
 
@@ -3876,7 +3875,13 @@ function startRealtimeUsers(){
       'users'
     );
 
-  window.firebaseTools.onSnapshot(
+      if(usersListener){
+      usersListener();
+    }
+    
+    usersListener =
+    
+    window.firebaseTools.onSnapshot(
 
     usersRef,
 
@@ -4070,20 +4075,20 @@ function startRealtimeUsers(){
 
     <button
       onclick="
-        removeProUser(
-          '${uid}'
-        )
-      "
+  removeProUser(
+    '${item.id}'
+  )
+"
     >
       Remove PRO
     </button>
 
     <button
       onclick="
-        banUser(
-          '${uid}'
-        )
-      "
+  banUser(
+    '${item.id}'
+  )
+"
     >
       Ban
     </button>
