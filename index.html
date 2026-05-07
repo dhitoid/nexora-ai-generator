@@ -2021,6 +2021,30 @@ window.addEventListener(
 <script>
 
 /* =========================================
+   START REALTIME
+========================================= */
+
+const realtimeInterval =
+  setInterval(() => {
+
+    if(window.firebaseReady){
+
+      clearInterval(
+        realtimeInterval
+      );
+
+      startRealtimeUsers();
+      startRealtimeCodes();
+
+      console.log(
+        '🔥 Realtime Started'
+      );
+
+    }
+
+  }, 500);
+
+/* =========================================
    NEXORA SMART AI ENGINE
 ========================================= */
 
@@ -3702,30 +3726,6 @@ function startRealtimeCodes(){
   );
 
 }
-
-/* =========================================
-   START REALTIME
-========================================= */
-
-const realtimeInterval =
-  setInterval(() => {
-
-  if(window.firebaseReady){
-
-    clearInterval(
-      realtimeInterval
-    );
-
-    startRealtimeUsers();
-    startRealtimeCodes();
-
-    console.log(
-      '🔥 Realtime Started'
-    );
-
-  }
-
-}, 500);
 
 /* =========================================
    ONLINE STATUS
