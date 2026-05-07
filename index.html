@@ -2437,14 +2437,14 @@ redeemBtn.addEventListener(
   try{
 
     const codeRef =
-  firebaseTools.doc(
+  window.firebaseTools.doc(
     db,
     'redeemCodes',
     code
   );
 
     const codeSnap =
-      await firebaseTools.getDoc(codeRef);
+      await window.firebaseTools.getDoc(codeRef);
 
     /* NOT FOUND */
 
@@ -2510,10 +2510,10 @@ redeemBtn.addEventListener(
 
     /* MARK USED */
 
-    await firebaseTools.updateDoc(codeRef, {
+    await window.firebaseTools.updateDoc(codeRef, {
 
       used:true,
-      usedAt:firebaseTools.serverTimestamp()
+      usedAt:window.firebaseTools.serverTimestamp()
 
     });
 
@@ -2795,9 +2795,9 @@ document
 
       /* SAVE FIREBASE */
 
-      await firebaseTools.setDoc(
+      await window.firebaseTools.setDoc(
 
-        firebaseTools.doc(
+        window.firebaseTools.doc(
           db,
           'redeemCodes',
           code
@@ -2813,7 +2813,7 @@ document
           used:false,
 
           createdAt:
-            firebaseTools.serverTimestamp()
+            window.firebaseTools.serverTimestamp()
 
         }
 
@@ -2866,9 +2866,9 @@ async function loadCodes(){
   try{
 
     const querySnapshot =
-      await firebaseTools.getDocs(
+      await window.firebaseTools.getDocs(
 
-        firebaseTools.collection(
+        window.firebaseTools.collection(
           db,
           'redeemCodes'
         )
