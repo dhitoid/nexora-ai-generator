@@ -2559,37 +2559,37 @@ updatePlanBadge();
 
 function canGenerate(){
 
-  /* PRO USER */
-
-  if(userData.plan === 'PRO'){
-    
-  /* TRACK GENERATION */
+  /* TRACK */
 
   if(window.currentUID){
-  
+
     const userRef =
       window.firebaseTools.doc(
         db,
         'users',
         window.currentUID
       );
-  
+
     window.firebaseTools.updateDoc(
       userRef,
       {
-  
+
         generations:
           usageData.count,
-  
+
         lastActive:
           window.firebaseTools
             .serverTimestamp()
-  
+
       }
-  
+
     );
-  
+
   }
+
+  /* PRO USER */
+
+  if(userData.plan === 'PRO'){
 
     return true;
 
@@ -3085,6 +3085,8 @@ document
       showToast(
         '✨ Code Saved To Firebase'
       );
+      
+      loadCodes();
 
     } catch(err){
 
@@ -3180,9 +3182,6 @@ const firebaseInterval =
     clearInterval(firebaseInterval);
 
     loadCodes();
-    showToast(
-  '✨ Code Saved To Firebase'
-);
 
   }
 
@@ -3337,11 +3336,18 @@ async function removeProUser(uid){
 
 /* AUTO LOAD */
 
-setTimeout(() => {
+const usersInterval =
+  setInterval(() => {
 
-  loadUsers();
+  if(window.firebaseReady){
 
-}, 2000);
+    clearInterval(usersInterval);
+
+    loadUsers();
+
+  }
+
+}, 500);
 
 /* =========================================
    DEMO PRO ACCESS
