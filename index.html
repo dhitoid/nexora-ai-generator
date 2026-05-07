@@ -1604,10 +1604,6 @@ textarea{
 
 <script type="module">
 
-/* =========================================
-   IMPORTS
-========================================= */
-
 import {
 
   initializeApp
@@ -1625,7 +1621,6 @@ import {
 import {
 
   getFirestore,
-
   doc,
   getDoc,
   updateDoc,
@@ -1639,52 +1634,58 @@ import {
 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* =========================================
-   CONFIG
-========================================= */
+/* CONFIG */
 
 const firebaseConfig = {
 
-  apiKey:
-    "AIzaSyD-hmfJ7C0FDzrsT8Lv2KYIRCzbINCsLKc",
-
-  authDomain:
-    "dtscriptid-nexora.firebaseapp.com",
-
-  projectId:
-    "dtscriptid-nexora",
-
-  storageBucket:
-    "dtscriptid-nexora.firebasestorage.app",
-
-  messagingSenderId:
-    "240566645004",
-
-  appId:
-    "1:240566645004:web:a9a5aafc7f39a143f5d929"
+  apiKey: "AIzaSyD-hmfJ7C0FDzrsT8Lv2KYIRCzbINCsLKc",
+  authDomain: "dtscriptid-nexora.firebaseapp.com",
+  projectId: "dtscriptid-nexora",
+  storageBucket: "dtscriptid-nexora.firebasestorage.app",
+  messagingSenderId: "240566645004",
+  appId: "1:240566645004:web:a9a5aafc7f39a143f5d929"
 
 };
 
-/* =========================================
-   INIT
-========================================= */
+/* INIT */
 
 const app =
+
   initializeApp(firebaseConfig);
 
 const auth =
+
   getAuth(app);
 
 const db =
+
   getFirestore(app);
 
-/* =========================================
-   GLOBALS
-========================================= */
+/* LOGIN */
+
+signInAnonymously(auth)
+
+  .then(() => {
+
+    console.log(
+
+      '🔥 Firebase Connected'
+
+    );
+
+  })
+
+  .catch(err => {
+
+    console.error(err);
+
+  });
+
+/* GLOBAL */
 
 window.db = db;
 
-window.firebaseReady = false;
+window.firebaseReady = true;
 
 window.firebaseTools = {
 
@@ -1697,208 +1698,74 @@ window.firebaseTools = {
   deleteDoc,
   getDocs,
   collection,
+  
   onSnapshot
 
 };
 
-/* =========================================
-   LOGIN
-========================================= */
-
-signInAnonymously(auth)
-
-  .then(() => {
-
-    console.log(
-      '🔥 Firebase Connected'
-    );
-
-  })
-
-  .catch(err => {
-
-    console.error(
-      'Firebase Login Error:',
-      err
-    );
-
-  });
+window.firebaseReady = true;
 
 /* =========================================
    USER DATABASE SYSTEM
 ========================================= */
 
-onAuthStateChanged(
+onAuthStateChanged(auth, async user => {
 
-  auth,
+  if(!user) return;
 
-  async user => {
+  const uid = user.uid;
 
-    if(!user) return;
+  window.currentUID = uid;
 
-    try{
+  const userRef =
+    doc(db, 'users', uid);
 
-      const uid =
-        user.uid;
+  const userSnap =
+    await getDoc(userRef);
 
-      window.currentUID =
-        uid;
+  /* NEW USER */
 
-      const userRef =
-        doc(db, 'users', uid);
+  if(!userSnap.exists()){
 
-      const userSnap =
-        await getDoc(userRef);
+    await setDoc(userRef, {
 
-      /* =========================================
-         NEW USER
-      ========================================= */
+      uid,
 
-      if(!userSnap.exists()){
+      plan:'FREE',
 
-        await setDoc(userRef, {
+      expires:null,
 
-          uid,
+      generations:0,
 
-          plan:'FREE',
+      online:true,
 
-          expires:null,
+      createdAt:
+        serverTimestamp(),
 
-          generations:0,
+      lastActive:
+        serverTimestamp()
 
-          online:true,
-
-          createdAt:
-            serverTimestamp(),
-
-          lastActive:
-            serverTimestamp()
-
-        });
-
-      } else {
-
-        /* USER ONLINE */
-
-        await updateDoc(userRef, {
-
-          online:true,
-
-          lastActive:
-            serverTimestamp()
-
-        });
-
-      }
-
-      /* =========================================
-         REALTIME PLAN SYNC
-      ========================================= */
-
-      onSnapshot(
-
-        userRef,
-
-        snap => {
-
-          if(!snap.exists()) return;
-
-          const data =
-            snap.data();
-
-          /* SAVE LOCAL */
-
-          localStorage.setItem(
-
-            'nexoraUser',
-
-            JSON.stringify({
-
-              plan:
-                data.plan || 'FREE',
-
-              expires:
-                data.expires || null
-
-            })
-
-          );
-
-          /* UPDATE GLOBAL */
-
-          userData = {
-
-            plan:
-              data.plan || 'FREE',
-
-            expires:
-              data.expires || null
-
-          };
-
-          /* UPDATE UI */
-
-          if(typeof updatePlanBadge === 'function'){
-
-            updatePlanBadge();
-
-          }
-
-        }
-
-      );
-
-      /* =========================================
-         ONLINE / OFFLINE
-      ========================================= */
-
-      window.addEventListener(
-
-        'beforeunload',
-
-        async () => {
-
-          try{
-
-            await updateDoc(userRef, {
-
-              online:false,
-
-              lastActive:
-                serverTimestamp()
-
-            });
-
-          } catch(err){
-
-            console.error(err);
-
-          }
-
-        }
-
-      );
-
-      /* READY */
-
-      window.firebaseReady = true;
-
-      console.log(
-        '👤 User Synced'
-      );
-
-    } catch(err){
-
-      console.error(
-        'User Sync Error:',
-        err
-      );
-
-    }
+    });
 
   }
 
-);
+  /* UPDATE ONLINE */
+
+  await updateDoc(userRef, {
+
+    online:true,
+
+    lastActive:
+      serverTimestamp()
+
+  });
+
+  console.log(
+    '👤 User Synced'
+  );
+  window.firebaseReady = true;
+
+});
 
 </script>
 
