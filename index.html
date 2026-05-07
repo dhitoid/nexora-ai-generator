@@ -3416,31 +3416,21 @@ function startRealtimeCodes(){
    START REALTIME
 ========================================= */
 
-let realtimeStarted = false;
-
 const realtimeInterval =
   setInterval(() => {
 
-    if(
-      window.firebaseReady &&
-      !realtimeStarted
-    ){
+  if(window.firebaseReady){
 
-      realtimeStarted = true;
+    clearInterval(realtimeInterval);
+    startRealtimeUsers();
+    startRealtimeCodes();
+    startRealtimeLogs();
 
-      clearInterval(
-        realtimeInterval
-      );
+    console.log(
+      '🔥 Realtime Admin Started'
+    );
 
-      startRealtimeUsers();
-      startRealtimeCodes();
-      startRealtimeLogs();
-
-      console.log(
-        '🔥 Realtime Admin Started'
-      );
-
-    }
+  }
 
 }, 500);
 
