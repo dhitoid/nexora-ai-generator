@@ -413,6 +413,58 @@ textarea{
   transform:translateY(-2px);
 }
 
+/* HERO BUTTON EFFECT */
+
+.primary-btn,
+.secondary-btn{
+  position:relative;
+  overflow:hidden;
+}
+
+.primary-btn::before,
+.secondary-btn::before{
+  content:'';
+  position:absolute;
+  top:0;
+  left:-100%;
+  width:100%;
+  height:100%;
+  background:linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,0.25),
+    transparent
+  );
+  transition:0.7s;
+}
+
+.primary-btn:hover::before,
+.secondary-btn:hover::before{
+  left:100%;
+}
+
+/* FOCUS EFFECT */
+
+.focus-glow{
+  animation:focusGlow 1.5s ease;
+}
+
+@keyframes focusGlow{
+
+  0%{
+    box-shadow:0 0 0 rgba(123,97,255,0);
+  }
+
+  50%{
+    box-shadow:0 0 30px rgba(123,97,255,0.7);
+  }
+
+  100%{
+    box-shadow:0 0 0 rgba(123,97,255,0);
+  }
+
+}
+
 /* MOBILE */
 
 @media(max-width:768px){
@@ -471,11 +523,11 @@ textarea{
     </p>
 
     <div class="hero-buttons">
-      <button class="primary-btn">
+      <button id="startBtn" class="primary-btn">
         Start Generating
       </button>
-
-      <button class="secondary-btn">
+      
+      <button id="demoBtn" class="secondary-btn">
         Live Demo
       </button>
     </div>
@@ -1076,6 +1128,106 @@ generateBtn.addEventListener('click', () => {
     });
 
   }, 5000);
+
+});
+
+/* =========================================
+   HERO BUTTONS
+========================================= */
+
+const startBtn =
+  document.getElementById('startBtn');
+
+const demoBtn =
+  document.getElementById('demoBtn');
+
+const generatorSection =
+  document.querySelector('.generator-section');
+
+/* START GENERATING */
+
+startBtn.addEventListener('click', () => {
+
+  navigator.vibrate?.(20);
+
+  generatorSection.scrollIntoView({
+    behavior:'smooth'
+  });
+
+  setTimeout(() => {
+
+    const firstInput =
+      document.getElementById('location');
+
+    firstInput.focus();
+
+    document
+      .querySelector('.generator-card')
+      .classList.add('focus-glow');
+
+    setTimeout(() => {
+
+      document
+        .querySelector('.generator-card')
+        .classList.remove('focus-glow');
+
+    }, 1500);
+
+  }, 700);
+
+});
+
+/* LIVE DEMO */
+
+demoBtn.addEventListener('click', async () => {
+
+  navigator.vibrate?.(30);
+
+  generatorSection.scrollIntoView({
+    behavior:'smooth'
+  });
+
+  /* AUTO FILL DEMO */
+
+  document.getElementById('location').value =
+    'BSD City';
+
+  document.getElementById('type').value =
+    '3 Kamar Tidur';
+
+  document.getElementById('price').value =
+    '850 Jutaan';
+
+  document.getElementById('promo').value =
+    'Free Furnished + Tanpa DP';
+
+  document.getElementById('market').value =
+    'Pasangan Muda & Karyawan';
+
+  document.getElementById('tone').value =
+    'Luxury';
+
+  /* GLOW EFFECT */
+
+  document
+    .querySelector('.generator-card')
+    .classList.add('focus-glow');
+
+  setTimeout(() => {
+
+    document
+      .querySelector('.generator-card')
+      .classList.remove('focus-glow');
+
+  }, 1500);
+
+  /* AUTO GENERATE */
+
+  setTimeout(() => {
+
+    generateBtn.click();
+
+  }, 900);
 
 });
 
