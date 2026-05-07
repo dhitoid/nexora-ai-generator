@@ -1828,69 +1828,6 @@ document
 });
 
 /* =========================================
-   PLAN SYSTEM
-========================================= */
-
-const DAILY_LIMIT = 5;
-
-const today =
-  new Date().toDateString();
-
-let userPlan =
-  localStorage.getItem('nexoraPlan') || 'FREE';
-
-let usageData =
-  JSON.parse(
-    localStorage.getItem('nexoraUsage')
-  ) || {
-
-    date: today,
-    count: 0
-
-  };
-
-/* RESET DAILY */
-
-if(usageData.date !== today){
-
-  usageData = {
-
-    date: today,
-    count: 0
-
-  };
-
-  localStorage.setItem(
-    'nexoraUsage',
-    JSON.stringify(usageData)
-  );
-
-}
-
-/* PLAN BADGE */
-
-const planBadge =
-  document.getElementById('planBadge');
-
-function updatePlanBadge(){
-
-  if(userPlan === 'PRO'){
-
-    planBadge.innerHTML =
-      '✨ PRO PLAN';
-
-  } else {
-
-    planBadge.innerHTML =
-      `FREE PLAN • ${DAILY_LIMIT - usageData.count} Generate Left`;
-
-  }
-
-}
-
-updatePlanBadge();
-
-/* =========================================
    PRO MODAL
 ========================================= */
 
@@ -1915,22 +1852,146 @@ function openProModal(){
 }
 
 /* =========================================
+   REAL PLAN SYSTEM
+========================================= */
+
+const DAILY_LIMIT = 5;
+
+const today =
+  new Date().toDateString();
+
+/* USER DATA */
+
+let userData =
+  JSON.parse(
+    localStorage.getItem('nexoraUser')
+  ) || {
+
+    plan:'FREE',
+    expires:null
+
+  };
+
+/* USAGE DATA */
+
+let usageData =
+  JSON.parse(
+    localStorage.getItem('nexoraUsage')
+  ) || {
+
+    date:today,
+    count:0
+
+  };
+
+/* RESET DAILY */
+
+if(usageData.date !== today){
+
+  usageData = {
+
+    date:today,
+    count:0
+
+  };
+
+  localStorage.setItem(
+    'nexoraUsage',
+    JSON.stringify(usageData)
+  );
+
+}
+
+/* CHECK EXPIRE */
+
+function checkPlanExpiry(){
+
+  if(
+    userData.plan === 'PRO' &&
+    userData.expires !== 'LIFETIME'
+  ){
+
+    const now =
+      new Date();
+
+    const expireDate =
+      new Date(userData.expires);
+
+    if(now > expireDate){
+
+      userData = {
+
+        plan:'FREE',
+        expires:null
+
+      };
+
+      localStorage.setItem(
+        'nexoraUser',
+        JSON.stringify(userData)
+      );
+
+      showToast(
+        '⚠️ Pro subscription expired'
+      );
+
+    }
+
+  }
+
+}
+
+checkPlanExpiry();
+
+/* PLAN BADGE */
+
+const planBadge =
+  document.getElementById('planBadge');
+
+function updatePlanBadge(){
+
+  if(userData.plan === 'PRO'){
+
+    if(userData.expires === 'LIFETIME'){
+
+      planBadge.innerHTML =
+        '✨ PRO LIFETIME';
+
+    } else {
+
+      planBadge.innerHTML =
+        `✨ PRO • Exp ${userData.expires}`;
+
+    }
+
+  } else {
+
+    const left =
+      DAILY_LIMIT - usageData.count;
+
+    planBadge.innerHTML =
+      `FREE PLAN • ${left} Generate Left`;
+
+  }
+
+}
+
+updatePlanBadge();
+
+/* =========================================
    GENERATE LIMIT
 ========================================= */
 
-const originalGenerate =
-  generateBtn.onclick;
-
 generateBtn.addEventListener('click', e => {
 
-  if(userPlan !== 'PRO'){
+  if(userData.plan !== 'PRO'){
 
     if(usageData.count >= DAILY_LIMIT){
 
       e.preventDefault();
 
       showToast(
-        '⚠️ Daily limit reached'
+        '⏳ Free limit reached. Come back tomorrow.'
       );
 
       openProModal();
@@ -1953,21 +2014,6 @@ generateBtn.addEventListener('click', e => {
 });
 
 /* =========================================
-   UPGRADE BUTTON
-========================================= */
-
-document
-  .getElementById('upgradeBtn')
-  .addEventListener('click', () => {
-
-    window.open(
-      'https://wa.me/6281802168184?text=Halo%20saya%20ingin%20upgrade%20Nexora%20Pro',
-      '_blank'
-    );
-
-});
-
-/* =========================================
    REDEEM SYSTEM
 ========================================= */
 
@@ -1976,13 +2022,28 @@ PRO CODES
 bisa kamu tambah sendiri nanti
 */
 
-const PRO_CODES = [
+/* =========================================
+   UNIQUE PRO CODES
+========================================= */
 
-  'DTSCRIPTID-PRO-2026',
-  'NEXORA-VIP-2026',
-  'NEXORA-ELITE'
+const PRO_CODES = {
 
-];
+  'DTS-7DAYS-5521':{
+    type:'PRO',
+    days:7
+  },
+
+  'DTS-30DAYS-8271':{
+    type:'PRO',
+    days:30
+  },
+
+  'DTS-LIFETIME-1122':{
+    type:'PRO',
+    days:'LIFETIME'
+  }
+
+};
 
 const redeemBtn =
   document.getElementById('redeemBtn');
@@ -1997,33 +2058,65 @@ redeemBtn.addEventListener('click', () => {
   const code =
     redeemInput.value.trim();
 
-  if(PRO_CODES.includes(code)){
+  if(PRO_CODES[code]){
 
-    /* SAVE PLAN */
+    const selectedCode =
+      PRO_CODES[code];
 
+    let expireDate = null;
+    
+    /* LIFETIME */
+    
+    if(selectedCode.days === 'LIFETIME'){
+    
+      expireDate = 'LIFETIME';
+    
+    } else {
+    
+      const future =
+        new Date();
+    
+      future.setDate(
+        future.getDate() +
+        selectedCode.days
+      );
+    
+      expireDate =
+        future.toISOString()
+          .split('T')[0];
+    
+    }
+
+    /* SAVE USER */
+    
+    userData = {
+    
+      plan:'PRO',
+      expires:expireDate
+    
+    };
+    
     localStorage.setItem(
-      'nexoraPlan',
-      'PRO'
+      'nexoraUser',
+      JSON.stringify(userData)
     );
-
-    userPlan = 'PRO';
-
+    
+    /* UPDATE */
+    
     updatePlanBadge();
-
-    /* CLOSE MODAL */
-
+    
+    /* CLOSE */
+    
     proModal.classList.remove('show');
-
+    
     /* SUCCESS */
-
+    
     showToast(
       '✨ Nexora Pro Activated'
     );
-
+    
     redeemInput.value = '';
-
-    /* CONFETTI EFFECT */
-
+    
     launchConfetti();
 
   } else {
