@@ -1,6 +1,5 @@
 export default async function handler(req, res) {
 
-  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -27,25 +26,34 @@ export default async function handler(req, res) {
     } = req.body;
 
     const prompt = `
-Kamu adalah AI marketing property premium.
+Kamu adalah AI marketing property Indonesia.
 
-Buatkan output berikut dengan gaya ${tone}.
+Buat:
+1. Caption Instagram
+2. Hook TikTok
+3. Meta Ads Copy
+4. Follow Up WhatsApp
 
-Data property:
+Data:
 - Lokasi: ${location}
-- Tipe Rumah: ${type}
+- Tipe: ${type}
 - Harga: ${price}
 - Promo: ${promo}
 - Target Market: ${market}
+- Tone: ${tone}
 
-Balas hanya JSON valid tanpa markdown.
+Balas dengan format JSON VALID SAJA.
 
-Format:
+JANGAN gunakan markdown.
+JANGAN gunakan backtick.
+
+Format EXACT:
+
 {
-  "instagram": "",
-  "tiktok": "",
-  "metaAds": "",
-  "whatsapp": ""
+  "instagram": "isi caption",
+  "tiktok": "isi hook",
+  "metaAds": "isi ads",
+  "whatsapp": "isi whatsapp"
 }
 `;
 
@@ -62,7 +70,8 @@ Format:
           messages: [
             {
               role: 'system',
-              content: 'Kamu expert marketing property Indonesia.'
+              content:
+                'Kamu expert copywriting property Indonesia.'
             },
             {
               role: 'user',
@@ -76,20 +85,32 @@ Format:
 
     const data = await response.json();
 
-    const text =
-      data.choices?.[0]?.message?.content || '{}';
+    const raw =
+      data.choices?.[0]?.message?.content || '';
+
+    console.log(raw);
+
+    // Bersihkan markdown jika ada
+    const cleaned = raw
+      .replace(/```json/g, '')
+      .replace(/```/g, '')
+      .trim();
 
     let parsed;
 
     try {
-      parsed = JSON.parse(text);
-    } catch {
-      parsed = {
-        instagram: text,
-        tiktok: '',
-        metaAds: '',
-        whatsapp: ''
-      };
+
+      parsed = JSON.parse(cleaned);
+
+    } catch (e) {
+
+      console.error('JSON Parse Error:', e);
+
+      return res.status(500).json({
+        error: 'AI JSON Parse Failed',
+        raw: cleaned
+      });
+
     }
 
     return res.status(200).json(parsed);
