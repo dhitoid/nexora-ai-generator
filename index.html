@@ -786,6 +786,22 @@ textarea{
   word-break:break-word;
 }
 
+.admin-codes{
+  margin-top:30px;
+}
+
+.admin-codes h3{
+  margin-bottom:16px;
+}
+
+.code-item{
+  padding:16px;
+  border-radius:16px;
+  background:rgba(255,255,255,0.05);
+  margin-bottom:12px;
+  line-height:1.7;
+}
+
 /* MOBILE */
 
 @media(max-width:768px){
@@ -1166,6 +1182,16 @@ textarea{
       <p>
         Nexora AI Control Panel
       </p>
+      
+      <div class="admin-codes">
+
+      <h3>
+        Redeem Codes
+      </h3>
+    
+      <div id="codesList"></div>
+    
+    </div>
 
     </div>
 
@@ -1248,14 +1274,15 @@ import {
 import {
 
   getFirestore,
-
   doc,
-
   getDoc,
-
   updateDoc,
+  serverTimestamp,
 
-  serverTimestamp
+  setDoc,
+  deleteDoc,
+  getDocs,
+  collection
 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -1309,17 +1336,18 @@ signInAnonymously(auth)
 /* GLOBAL */
 
 window.db = db;
-alert('🔥 Firebase Connected');
 
 window.firebaseTools = {
 
   doc,
-
   getDoc,
-
   updateDoc,
+  serverTimestamp,
 
-  serverTimestamp
+  setDoc,
+  deleteDoc,
+  getDocs,
+  collection
 
 };
 
@@ -2619,15 +2647,30 @@ document
 
 });
 
-/* CREATE CODE */
+/* =========================================
+   FIREBASE CREATE CODE
+========================================= */
 
 document
   .getElementById('generateCodeBtn')
-  .addEventListener('click', () => {
+  .addEventListener('click', async () => {
 
     const days =
-      document.getElementById('generateDays')
-      .value;
+      document
+        .getElementById('generateDays')
+        .value;
+
+    if(!days){
+
+      showToast(
+        '❌ Enter duration'
+      );
+
+      return;
+
+    }
+
+    /* RANDOM CODE */
 
     const random =
       Math.floor(
@@ -2637,26 +2680,136 @@ document
     const code =
       `DTS-${days}-${random}`;
 
-    PRO_CODES[code] = {
+    try{
 
-      type:'PRO',
-      days:
-        days === 'LIFETIME'
-        ? 'LIFETIME'
-        : Number(days)
+      /* SAVE FIREBASE */
 
-    };
+      await firebaseTools.setDoc(
 
-    adminResult.innerHTML = `
-      ✅ NEW CODE:<br><br>
-      <b>${code}</b>
-    `;
+        firebaseTools.doc(
+          db,
+          'redeemCodes',
+          code
+        ),
 
-    showToast(
-      '✨ Code Generated'
-    );
+        {
+
+          days:
+            days === 'LIFETIME'
+            ? 'LIFETIME'
+            : Number(days),
+
+          used:false,
+
+          createdAt:
+            firebaseTools.serverTimestamp()
+
+        }
+
+      );
+
+      adminResult.innerHTML = `
+
+        <div class="code-result">
+
+          <h3>
+            ✅ Code Generated
+          </h3>
+
+          <br>
+
+          <b>${code}</b>
+
+        </div>
+
+      `;
+
+      showToast(
+        '✨ Code Saved To Firebase'
+      );
+
+    } catch(err){
+
+      console.error(err);
+
+      showToast(
+        '❌ Failed create code'
+      );
+
+    }
 
 });
+
+/* =========================================
+   LOAD REDEEM CODES
+========================================= */
+
+async function loadCodes(){
+
+  const codesList =
+    document.getElementById('codesList');
+
+  codesList.innerHTML =
+    'Loading...';
+
+  try{
+
+    const querySnapshot =
+      await firebaseTools.getDocs(
+
+        firebaseTools.collection(
+          db,
+          'redeemCodes'
+        )
+
+      );
+
+    let html = '';
+
+    querySnapshot.forEach(docSnap => {
+
+      const data =
+        docSnap.data();
+
+      html += `
+
+        <div class="code-item">
+
+          <b>${docSnap.id}</b>
+
+          <br>
+
+          Days:
+          ${data.days}
+
+          <br>
+
+          Used:
+          ${data.used ? 'YES' : 'NO'}
+
+        </div>
+
+      `;
+
+    });
+
+    codesList.innerHTML =
+      html || 'No codes';
+
+  } catch(err){
+
+    console.error(err);
+
+    codesList.innerHTML =
+      'Failed load codes';
+
+  }
+
+}
+
+/* AUTO LOAD */
+
+loadCodes();
 
 /* =========================================
    DEMO PRO ACCESS
