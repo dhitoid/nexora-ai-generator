@@ -631,6 +631,108 @@ textarea{
   line-height:1.8;
 }
 
+/* PLAN BADGE */
+
+.plan-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  margin-top:18px;
+  padding:10px 18px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.08);
+  font-size:14px;
+  color:#B9C0D4;
+}
+
+/* PRICING */
+
+.pricing-header{
+  text-align:center;
+  margin-bottom:28px;
+}
+
+.pricing-header h2{
+  font-size:36px;
+  margin-bottom:10px;
+  background:linear-gradient(
+    135deg,
+    #7B61FF,
+    #00C2FF
+  );
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+.pricing-header p{
+  color:#AEB6CB;
+  line-height:1.8;
+}
+
+.pricing-features{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  margin-bottom:28px;
+  color:#D6DCEF;
+}
+
+.upgrade-btn{
+  width:100%;
+  padding:18px;
+  border:none;
+  border-radius:18px;
+  background:linear-gradient(
+    135deg,
+    #7B61FF,
+    #00C2FF
+  );
+  color:white;
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.upgrade-btn:hover{
+  transform:translateY(-3px);
+}
+
+/* REDEEM */
+
+.redeem-box{
+  margin-bottom:18px;
+}
+
+.redeem-box input{
+  width:100%;
+  padding:16px;
+  border:none;
+  border-radius:16px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.08);
+  color:white;
+  outline:none;
+  font-size:16px;
+}
+
+.redeem-btn{
+  width:100%;
+  padding:16px;
+  margin-top:14px;
+  border:none;
+  border-radius:16px;
+  background:rgba(255,255,255,0.06);
+  color:white;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.redeem-btn:hover{
+  transform:translateY(-2px);
+}
+
 /* MOBILE */
 
 @media(max-width:768px){
@@ -675,6 +777,10 @@ textarea{
 
     <div class="badge">
       AI FOR PROPERTY MARKETING
+    </div>
+    
+    <div id="planBadge" class="plan-badge">
+      FREE PLAN
     </div>
 
     <h1>
@@ -934,6 +1040,58 @@ textarea{
     </button>
 
     <div id="modalBody"></div>
+
+  </div>
+
+</div>
+
+<!-- PRO MODAL -->
+
+<div id="proModal" class="modal">
+  
+    <div class="redeem-box">
+  
+    <input
+      id="redeemInput"
+      type="text"
+      placeholder="Enter Pro Code"
+    >
+  
+  </div>
+
+  <div class="modal-content">
+
+    <button id="closeProModal">
+      ✕
+    </button>
+
+    <div class="pricing-header">
+
+      <h2>Nexora Pro ✨</h2>
+
+      <p>
+        Unlock unlimited AI generation
+        and premium features.
+      </p>
+
+    </div>
+
+    <div class="pricing-features">
+
+      <div>✅ Unlimited Generate</div>
+      <div>✅ Premium Viral Hooks</div>
+      <div>✅ Advanced Copywriting</div>
+      <div>✅ More Variations</div>
+      <div>✅ Future AI Features</div>
+
+    </div>
+
+    <button id="upgradeBtn" class="upgrade-btn">
+      Upgrade via WhatsApp
+    </button>
+    <button id="redeemBtn" class="redeem-btn">
+      Redeem Pro Code
+    </button>
 
   </div>
 
@@ -1669,6 +1827,292 @@ document
     );
 
 });
+
+/* =========================================
+   PLAN SYSTEM
+========================================= */
+
+const DAILY_LIMIT = 5;
+
+const today =
+  new Date().toDateString();
+
+let userPlan =
+  localStorage.getItem('nexoraPlan') || 'FREE';
+
+let usageData =
+  JSON.parse(
+    localStorage.getItem('nexoraUsage')
+  ) || {
+
+    date: today,
+    count: 0
+
+  };
+
+/* RESET DAILY */
+
+if(usageData.date !== today){
+
+  usageData = {
+
+    date: today,
+    count: 0
+
+  };
+
+  localStorage.setItem(
+    'nexoraUsage',
+    JSON.stringify(usageData)
+  );
+
+}
+
+/* PLAN BADGE */
+
+const planBadge =
+  document.getElementById('planBadge');
+
+function updatePlanBadge(){
+
+  if(userPlan === 'PRO'){
+
+    planBadge.innerHTML =
+      '✨ PRO PLAN';
+
+  } else {
+
+    planBadge.innerHTML =
+      `FREE PLAN • ${DAILY_LIMIT - usageData.count} Generate Left`;
+
+  }
+
+}
+
+updatePlanBadge();
+
+/* =========================================
+   PRO MODAL
+========================================= */
+
+const proModal =
+  document.getElementById('proModal');
+
+const closeProModal =
+  document.getElementById('closeProModal');
+
+closeProModal.addEventListener('click', () => {
+
+  proModal.classList.remove('show');
+
+});
+
+/* OPEN MODAL */
+
+function openProModal(){
+
+  proModal.classList.add('show');
+
+}
+
+/* =========================================
+   GENERATE LIMIT
+========================================= */
+
+const originalGenerate =
+  generateBtn.onclick;
+
+generateBtn.addEventListener('click', e => {
+
+  if(userPlan !== 'PRO'){
+
+    if(usageData.count >= DAILY_LIMIT){
+
+      e.preventDefault();
+
+      showToast(
+        '⚠️ Daily limit reached'
+      );
+
+      openProModal();
+
+      return;
+
+    }
+
+    usageData.count++;
+
+    localStorage.setItem(
+      'nexoraUsage',
+      JSON.stringify(usageData)
+    );
+
+    updatePlanBadge();
+
+  }
+
+});
+
+/* =========================================
+   UPGRADE BUTTON
+========================================= */
+
+document
+  .getElementById('upgradeBtn')
+  .addEventListener('click', () => {
+
+    window.open(
+      'https://wa.me/6281802168184?text=Halo%20saya%20ingin%20upgrade%20Nexora%20Pro',
+      '_blank'
+    );
+
+});
+
+/* =========================================
+   REDEEM SYSTEM
+========================================= */
+
+/*
+PRO CODES
+bisa kamu tambah sendiri nanti
+*/
+
+const PRO_CODES = [
+
+  'DTSCRIPTID-PRO-2026',
+  'NEXORA-VIP-2026',
+  'NEXORA-ELITE'
+
+];
+
+const redeemBtn =
+  document.getElementById('redeemBtn');
+
+const redeemInput =
+  document.getElementById('redeemInput');
+
+/* REDEEM */
+
+redeemBtn.addEventListener('click', () => {
+
+  const code =
+    redeemInput.value.trim();
+
+  if(PRO_CODES.includes(code)){
+
+    /* SAVE PLAN */
+
+    localStorage.setItem(
+      'nexoraPlan',
+      'PRO'
+    );
+
+    userPlan = 'PRO';
+
+    updatePlanBadge();
+
+    /* CLOSE MODAL */
+
+    proModal.classList.remove('show');
+
+    /* SUCCESS */
+
+    showToast(
+      '✨ Nexora Pro Activated'
+    );
+
+    redeemInput.value = '';
+
+    /* CONFETTI EFFECT */
+
+    launchConfetti();
+
+  } else {
+
+    showToast(
+      '❌ Invalid Pro Code'
+    );
+
+  }
+
+});
+
+/* =========================================
+   CONFETTI EFFECT
+========================================= */
+
+function launchConfetti(){
+
+  for(let i=0; i<80; i++){
+
+    const confetti =
+      document.createElement('div');
+
+    confetti.style.position = 'fixed';
+    confetti.style.width = '8px';
+    confetti.style.height = '8px';
+    confetti.style.background =
+      `hsl(${Math.random()*360},100%,60%)`;
+
+    confetti.style.left =
+      Math.random()*100 + 'vw';
+
+    confetti.style.top = '-10px';
+
+    confetti.style.zIndex = '999999';
+
+    confetti.style.borderRadius = '50%';
+
+    document.body.appendChild(confetti);
+
+    const animation =
+      confetti.animate([
+
+        {
+          transform:
+            'translateY(0) rotate(0deg)',
+          opacity:1
+        },
+
+        {
+          transform:
+            `translateY(${window.innerHeight+100}px)
+             rotate(720deg)`,
+          opacity:0
+        }
+
+      ],{
+
+        duration:
+          3000 + Math.random()*2000
+
+      });
+
+    animation.onfinish = () => {
+
+      confetti.remove();
+
+    };
+
+  }
+
+}
+
+/* =========================================
+   DEMO PRO ACCESS
+========================================= */
+
+/*
+UNTUK TESTING:
+hapus komentar di bawah ini
+supaya akun jadi PRO otomatis
+
+localStorage.setItem(
+  'nexoraPlan',
+  'PRO'
+);
+
+*/
 
 </script>
 
