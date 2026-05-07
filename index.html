@@ -1462,6 +1462,8 @@ window.firebaseTools = {
 
 };
 
+window.firebaseReady = true;
+
 </script>
 
 <script>
@@ -2421,6 +2423,16 @@ redeemBtn.addEventListener(
   'click',
   async () => {
 
+  if(!window.firebaseReady){
+
+    showToast(
+      '⏳ Firebase loading...'
+    );
+
+    return;
+
+  }
+
   const code =
     redeemInput.value.trim();
 
@@ -2918,9 +2930,20 @@ async function loadCodes(){
 
 }
 
-/* AUTO LOAD */
+/* WAIT FIREBASE */
 
-loadCodes();
+const firebaseInterval =
+  setInterval(() => {
+
+  if(window.firebaseReady){
+
+    clearInterval(firebaseInterval);
+
+    loadCodes();
+
+  }
+
+}, 300);
 
 /* =========================================
    DEMO PRO ACCESS
