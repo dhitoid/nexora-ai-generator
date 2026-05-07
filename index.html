@@ -415,7 +415,7 @@ const generateBtn = document.getElementById('generateBtn');
 const output = document.getElementById('output');
 const copyBtn = document.getElementById('copyBtn');
 
-generateBtn.addEventListener('click', () => {
+generateBtn.addEventListener('click', async () => {
 
   const location = document.getElementById('location').value;
   const type = document.getElementById('type').value;
@@ -424,58 +424,62 @@ generateBtn.addEventListener('click', () => {
   const market = document.getElementById('market').value;
   const tone = document.getElementById('tone').value;
 
-  const generated = `🔥 ${tone.toUpperCase()} PROPERTY CONTENT
+  generateBtn.innerHTML = '✨ Nexora AI is thinking...';
+  generateBtn.disabled = true;
 
-📍 Lokasi: ${location}
-🏠 Tipe: ${type}
-💰 Harga: ${price}
+  output.value = 'Generating AI content...';
 
-✨ PROMO SPESIAL
-${promo}
+  try {
+
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        location,
+        type,
+        price,
+        promo,
+        market,
+        tone
+      })
+    });
+
+    const data = await response.json();
+
+    output.value =
+`📱 INSTAGRAM
+
+${data.instagram}
 
 ━━━━━━━━━━━━━━━━━━
 
-📱 INSTAGRAM CAPTION
+🎬 TIKTOK
 
-Hunian modern di ${location} dengan ${type} mulai ${price}.
-
-Nikmati promo ${promo} dan rasakan tinggal di lokasi strategis dengan akses mudah ke mana saja.
-
-Cocok untuk ${market}.
-
-Unit terbatas! Segera survey sebelum kehabisan.
-
-━━━━━━━━━━━━━━━━━━
-
-🎬 TIKTOK HOOK
-
-“Rumah dekat ${location} cuma ${price}?!”
-
-“Belum banyak yang tahu ada promo ${promo} 😱”
+${data.tiktok}
 
 ━━━━━━━━━━━━━━━━━━
 
 📢 META ADS
 
-Cari rumah nyaman dekat ${location}?
-
-Kini hadir hunian ${type} mulai ${price} dengan promo ${promo}.
-
-Cocok untuk ${market}.
-
-Klik sekarang dan jadwalkan survey!
+${data.metaAds}
 
 ━━━━━━━━━━━━━━━━━━
 
-💬 FOLLOW UP WHATSAPP
+💬 WHATSAPP
 
-Halo kak 👋
+${data.whatsapp}`;
 
-Untuk unit di ${location} masih tersedia dan saat ini ada promo ${promo}.
+  } catch (error) {
 
-Kalau berkenan, minggu ini bisa jadwalkan survey lokasi 😊`;
+    output.value =
+      'Failed to generate AI content.';
 
-  output.value = generated;
+  }
+
+  generateBtn.innerHTML = '✨ Generate Content';
+  generateBtn.disabled = false;
 
 });
 
