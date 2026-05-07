@@ -411,87 +411,247 @@ textarea{
 
 <script>
 
+/* =========================================
+   NEXORA SMART AI ENGINE
+========================================= */
+
 const generateBtn = document.getElementById('generateBtn');
 const output = document.getElementById('output');
 const copyBtn = document.getElementById('copyBtn');
 
+/* =========================================
+   DATABASE
+========================================= */
+
+const hooks = [
+  "Rumah dekat {location} cuma {price}?! 😱",
+  "Belum banyak yang tahu ada hunian strategis di {location}",
+  "Harga segini di {location} masih dapat rumah modern?",
+  "Karyawan muda wajib tahu promo rumah ini 👀",
+  "Baru launching! Rumah impian mulai {price}",
+  "Bisa punya rumah tanpa ribet di {location}",
+  "Promo terbatas untuk unit terbaik minggu ini 🔥"
+];
+
+const ctas = [
+  "Segera jadwalkan survey sebelum kehabisan!",
+  "Klik sekarang dan konsultasi gratis 👇",
+  "Unit terbatas, jangan sampai terlambat.",
+  "Survey weekend ini yuk 😊",
+  "Booking sekarang sebelum harga naik.",
+  "Kesempatan langka untuk punya rumah strategis."
+];
+
+const emotions = [
+  "nyaman",
+  "modern",
+  "strategis",
+  "premium",
+  "minimalis",
+  "elegan"
+];
+
+const emojis = ["🔥","✨","😱","🏡","🚀","💯"];
+
+/* =========================================
+   HELPER
+========================================= */
+
+function random(arr){
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function replaceTemplate(text, data){
+
+  return text
+    .replaceAll('{location}', data.location)
+    .replaceAll('{price}', data.price)
+    .replaceAll('{promo}', data.promo)
+    .replaceAll('{type}', data.type);
+
+}
+
+function loadingSteps(){
+
+  return new Promise(resolve => {
+
+    const steps = [
+      "🔍 Analyzing property market...",
+      "🧠 Creating viral hooks...",
+      "✨ Generating emotional CTA...",
+      "🚀 Optimizing conversion copy..."
+    ];
+
+    let index = 0;
+
+    const interval = setInterval(() => {
+
+      output.value = steps[index];
+
+      index++;
+
+      if(index >= steps.length){
+
+        clearInterval(interval);
+
+        setTimeout(() => {
+          resolve();
+        }, 700);
+
+      }
+
+    }, 900);
+
+  });
+
+}
+
+/* =========================================
+   GENERATOR
+========================================= */
+
 generateBtn.addEventListener('click', async () => {
 
-  const location = document.getElementById('location').value;
-  const type = document.getElementById('type').value;
-  const price = document.getElementById('price').value;
-  const promo = document.getElementById('promo').value;
-  const market = document.getElementById('market').value;
-  const tone = document.getElementById('tone').value;
+  const data = {
 
-  generateBtn.innerHTML = '✨ Nexora AI is thinking...';
+    location:
+      document.getElementById('location').value || 'BSD',
+
+    type:
+      document.getElementById('type').value || '2 Kamar Tidur',
+
+    price:
+      document.getElementById('price').value || '300 Jutaan',
+
+    promo:
+      document.getElementById('promo').value || 'Free Furnished',
+
+    market:
+      document.getElementById('market').value || 'Karyawan Muda',
+
+    tone:
+      document.getElementById('tone').value
+
+  };
+
   generateBtn.disabled = true;
 
-  output.value = 'Generating AI content...';
+  generateBtn.innerHTML =
+    '✨ Nexora AI is thinking...';
 
-  try {
+  await loadingSteps();
 
-    const response = await fetch('/api/generate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        location,
-        type,
-        price,
-        promo,
-        market,
-        tone
-      })
-    });
+  /* RANDOMIZED CONTENT */
 
-    const data = await response.json();
+  const hook1 =
+    replaceTemplate(random(hooks), data);
 
-    output.value =
+  const hook2 =
+    replaceTemplate(random(hooks), data);
+
+  const cta =
+    random(ctas);
+
+  const emotion =
+    random(emotions);
+
+  const emoji =
+    random(emojis);
+
+  /* INSTAGRAM */
+
+  const instagram = `
+${emoji} Hunian ${emotion} di ${data.location} dengan ${data.type} mulai ${data.price}.
+
+Nikmati promo ${data.promo} dan rasakan tinggal di lokasi strategis dengan akses mudah ke mana saja.
+
+Cocok untuk ${data.market} yang ingin punya rumah nyaman dengan cicilan ringan.
+
+${cta}
+`;
+
+  /* TIKTOK */
+
+  const tiktok = `
+${hook1}
+
+${hook2}
+
+${cta}
+`;
+
+  /* META ADS */
+
+  const metaAds = `
+Cari rumah ${emotion} dekat ${data.location}?
+
+Kini hadir hunian ${data.type} mulai ${data.price} dengan promo ${data.promo}.
+
+Cocok untuk ${data.market}.
+
+${cta}
+`;
+
+  /* WHATSAPP */
+
+  const whatsapp = `
+Halo kak 👋
+
+Untuk unit di ${data.location} masih tersedia dan saat ini ada promo ${data.promo}.
+
+Rumah ${data.type} mulai ${data.price} dan cocok untuk ${data.market}.
+
+Kalau berkenan, minggu ini bisa jadwalkan survey lokasi 😊
+`;
+
+  /* OUTPUT */
+
+  output.value =
 `📱 INSTAGRAM
 
-${data.instagram}
+${instagram}
 
 ━━━━━━━━━━━━━━━━━━
 
 🎬 TIKTOK
 
-${data.tiktok}
+${tiktok}
 
 ━━━━━━━━━━━━━━━━━━
 
 📢 META ADS
 
-${data.metaAds}
+${metaAds}
 
 ━━━━━━━━━━━━━━━━━━
 
 💬 WHATSAPP
 
-${data.whatsapp}`;
+${whatsapp}`;
 
-  } catch (error) {
-
-    output.value =
-      'Failed to generate AI content.';
-
-  }
-
-  generateBtn.innerHTML = '✨ Generate Content';
   generateBtn.disabled = false;
 
+  generateBtn.innerHTML =
+    '✨ Generate Content';
+
 });
+
+/* =========================================
+   COPY BUTTON
+========================================= */
 
 copyBtn.addEventListener('click', () => {
 
   output.select();
+
   document.execCommand('copy');
 
-  copyBtn.innerText = 'Copied!';
+  copyBtn.innerHTML = '✅ Copied';
 
   setTimeout(() => {
-    copyBtn.innerText = 'Copy';
+
+    copyBtn.innerHTML = 'Copy';
+
   }, 2000);
 
 });
