@@ -1126,6 +1126,37 @@ textarea{
 
 }
 
+.uid-mini{
+
+  font-size:12px;
+  opacity:.6;
+  margin-top:4px;
+  word-break:break-all;
+
+}
+
+.show-more-btn{
+
+  width:100%;
+  border:none;
+  padding:14px;
+  margin-top:14px;
+
+  border-radius:16px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #7b61ff,
+      #00c6ff
+    );
+
+  color:white;
+  font-weight:700;
+  cursor:pointer;
+
+}
+
 /* MOBILE */
 
 @media(max-width:768px){
@@ -3643,9 +3674,75 @@ const firebaseInterval =
    REALTIME USERS DATABASE
 ========================================= */
 
+let showAllUsers = false;
+
+function toggleUsers(){
+
+  showAllUsers =
+    !showAllUsers;
+
+  startRealtimeUsers();
+
+}
+
+/* =========================================
+   BAN USER
+========================================= */
+
+async function banUser(uid){
+
+  try{
+
+    const userRef =
+
+      window.firebaseTools.doc(
+        window.db,
+        'users',
+        uid
+      );
+
+    await window.firebaseTools.setDoc(
+
+      userRef,
+
+      {
+
+        banned:true
+
+      },
+
+      {
+
+        merge:true
+
+      }
+
+    );
+
+    showToast(
+      '🚫 User Banned'
+    );
+
+  } catch(err){
+
+    console.error(err);
+
+    showToast(
+      '❌ Failed Ban'
+    );
+
+  }
+
+}
+
+/* =========================================
+   REALTIME USERS
+========================================= */
+
 function startRealtimeUsers(){
 
   const usersList =
+
     document.getElementById(
       'usersList'
     );
@@ -3674,10 +3771,41 @@ function startRealtimeUsers(){
 
       let html = '';
 
+      const allUsers = [];
+
       snapshot.forEach(docSnap => {
 
         const data =
           docSnap.data();
+
+        allUsers.push({
+
+          id:docSnap.id,
+          data:data
+
+        });
+
+      });
+
+      /* NEWEST FIRST */
+
+      allUsers.reverse();
+
+      /* SHOW LIMIT */
+
+      const visibleUsers =
+
+        showAllUsers
+        ? allUsers
+        : allUsers.slice(0, 5);
+
+      visibleUsers.forEach(item => {
+
+        const data =
+          item.data;
+
+        const uid =
+          data.uid || item.id;
 
         total++;
 
@@ -3692,22 +3820,25 @@ function startRealtimeUsers(){
         generations +=
           data.generations || 0;
 
-        /* SAFE UID */
-
-        const uid =
-          data.uid
-          ? data.uid
-          : docSnap.id;
-
         html += `
 
           <div class="user-item">
 
             <div class="user-top">
 
-              <b>
-                ${uid.slice(0,12)}...
-              </b>
+              <div>
+
+                <b>
+                  ${uid.slice(0,12)}...
+                </b>
+
+                <div class="uid-mini">
+
+                  ${uid}
+
+                </div>
+
+              </div>
 
               <span class="
                 ${
@@ -3716,29 +3847,46 @@ function startRealtimeUsers(){
                   : 'free-badge'
                 }
               ">
+
                 ${data.plan || 'FREE'}
+
               </span>
 
             </div>
 
             <div class="user-info">
 
-              Exp:
-              ${data.expires || 'NONE'}
+              <div>
+                📅 Exp:
+                ${data.expires || 'NONE'}
+              </div>
 
-              <br>
+              <div>
+                ⚡ Generations:
+                ${data.generations || 0}
+              </div>
 
-              Generations:
-              ${data.generations || 0}
+              <div>
+                🌐 Device:
+                ${
+                  data.device
+                  ? data.device.slice(0,35)
+                  : 'Unknown'
+                }
+              </div>
 
-              <br>
+              <div>
+                🕒 Last Active:
+                ${data.lastSeen || 'Now'}
+              </div>
 
-              Status:
-              ${
-                data.online
-                ? '🟢 ONLINE'
-                : '⚫ OFFLINE'
-              }
+              <div>
+                ${
+                  data.online
+                  ? '🟢 ONLINE'
+                  : '⚫ OFFLINE'
+                }
+              </div>
 
             </div>
 
@@ -3754,6 +3902,16 @@ function startRealtimeUsers(){
                 Remove PRO
               </button>
 
+              <button
+                onclick="
+                  banUser(
+                    '${uid}'
+                  )
+                "
+              >
+                Ban
+              </button>
+
             </div>
 
           </div>
@@ -3762,7 +3920,27 @@ function startRealtimeUsers(){
 
       });
 
-      /* ANALYTICS */
+      /* REAL ANALYTICS */
+
+      snapshot.forEach(docSnap => {
+
+        const data =
+          docSnap.data();
+
+        if(data.plan === 'PRO'){
+          pro++;
+        }
+
+        if(data.online){
+          online++;
+        }
+
+        generations +=
+          data.generations || 0;
+
+      });
+
+      total = snapshot.size;
 
       document.getElementById(
         'totalUsers'
@@ -3780,8 +3958,32 @@ function startRealtimeUsers(){
         'totalGenerations'
       ).innerHTML = generations;
 
-      usersList.innerHTML =
-        html || 'No Users Found';
+      usersList.innerHTML = `
+
+        ${html || 'No Users'}
+
+        ${
+          total > 5
+          ? `
+
+            <button
+              class="show-more-btn"
+              onclick="toggleUsers()"
+            >
+
+              ${
+                showAllUsers
+                ? 'Show Less'
+                : 'Show More'
+              }
+
+            </button>
+
+          `
+          : ''
+        }
+
+      `;
 
     },
 
