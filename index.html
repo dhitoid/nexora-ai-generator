@@ -3162,6 +3162,7 @@ document
 
 });
 
+bingung deh, cba sama bagian ini benerin semua da
 /* =========================================
    CREATE CODE SYSTEM
 ========================================= */
@@ -3170,27 +3171,18 @@ document
   .getElementById('generateCodeBtn')
   .addEventListener('click', async () => {
 
-    /* INPUT */
-
-    const daysInput =
-      document
-        .getElementById('generateDays');
-
-    const nameInput =
-      document
-        .getElementById('generateName');
-
     const days =
-      daysInput.value
-        .trim()
-        .toUpperCase();
+      document
+        .getElementById('generateDays')
+        .value
+        .trim();
 
     const name =
-      nameInput.value
+      document
+        .getElementById('generateName')
+        .value
         .trim()
         .toUpperCase();
-
-    /* VALIDATE */
 
     if(!days){
 
@@ -3202,33 +3194,6 @@ document
 
     }
 
-    /* VALID DAYS */
-
-    let finalDays;
-
-    if(days === 'LIFETIME'){
-
-      finalDays = 'LIFETIME';
-
-    } else {
-
-      finalDays = Number(days);
-
-      if(
-        isNaN(finalDays) ||
-        finalDays <= 0
-      ){
-
-        showToast(
-          '❌ Invalid duration'
-        );
-
-        return;
-
-      }
-
-    }
-
     /* RANDOM */
 
     const random =
@@ -3236,7 +3201,7 @@ document
         1000 + Math.random() * 9000
       );
 
-    /* CODE FORMAT */
+    /* CODE */
 
     const code =
 
@@ -3246,7 +3211,7 @@ document
 
     try{
 
-      /* SAVE TO FIREBASE */
+      /* SAVE */
 
       await window.firebaseTools.setDoc(
 
@@ -3258,13 +3223,13 @@ document
 
         {
 
-          code,
-
           name:
             name || 'PRO',
 
           days:
-            finalDays,
+            days === 'LIFETIME'
+            ? 'LIFETIME'
+            : Number(days),
 
           used:false,
 
@@ -3275,8 +3240,6 @@ document
         }
 
       );
-
-      /* RESULT UI */
 
       adminResult.innerHTML = `
 
@@ -3293,27 +3256,14 @@ document
           <br><br>
 
           Duration:
-          ${finalDays}
+          ${days}
 
         </div>
 
       `;
 
-      /* RESET INPUT */
-
-      daysInput.value = '';
-      nameInput.value = '';
-
-      /* TOAST */
-
       showToast(
         '✨ Redeem Code Created'
-      );
-
-      /* REALTIME LOG */
-
-      saveLog(
-        \`🛠 Admin Created Code: ${code}\`
       );
 
     } catch(err){
