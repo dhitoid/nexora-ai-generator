@@ -1754,8 +1754,6 @@ onAuthStateChanged(auth, async user => {
   await updateDoc(userRef, {
 
     online:true,
-    
-    lastPing:Date.now()
 
     lastActive:
       serverTimestamp()
@@ -2738,49 +2736,6 @@ bisa kamu tambah sendiri nanti
 */
 
 /* =========================================
-   USER HEARTBEAT
-========================================= */
-
-setInterval(async () => {
-
-  if(!window.currentUID)
-    return;
-
-  const userRef =
-
-    window.firebaseTools.doc(
-      window.db,
-      'users',
-      window.currentUID
-    );
-
-  await window.firebaseTools.setDoc(
-
-    userRef,
-
-    {
-
-      online:true,
-
-      lastPing:Date.now(),
-
-      lastActive:
-        window.firebaseTools
-          .serverTimestamp()
-
-    },
-
-    {
-
-      merge:true
-
-    }
-
-  );
-
-}, 15000);
-
-/* =========================================
    UNIQUE PRO CODES
 ========================================= */
 
@@ -3473,16 +3428,9 @@ function startRealtimeUsers(){
           pro++;
         }
 
-        const isOnline =
-
-          Date.now() -
-          (data.lastPing || 0)
-        
-          < 30000;
-        
-        if(isOnline){
-          online++;
-        }
+        if(data.online){
+            online++;
+          }
 
         generations +=
           data.generations || 0;
@@ -3523,7 +3471,7 @@ function startRealtimeUsers(){
 
               Status:
               ${
-                isOnline
+                data.online
                 ? '🟢 ONLINE'
                 : '⚫ OFFLINE'
               }
