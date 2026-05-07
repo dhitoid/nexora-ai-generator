@@ -1227,6 +1227,72 @@ textarea{
 
 </div>
 
+<!-- FIREBASE -->
+
+<script type="module">
+
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+  getAuth,
+  signInAnonymously
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
+  collection,
+  addDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* CONFIG */
+
+const firebaseConfig = {
+
+  apiKey: "AIzaSyD-hmfJ7C0FDzrsT8Lv2KYIRCzbINCsLKc",
+  authDomain: "dtscriptid-nexora.firebaseapp.com",
+  projectId: "dtscriptid-nexora",
+  storageBucket: "dtscriptid-nexora.firebasestorage.app",
+  messagingSenderId: "240566645004",
+  appId: "1:240566645004:web:a9a5aafc7f39a143f5d929"
+
+};
+
+/* INIT */
+
+const app =
+  initializeApp(firebaseConfig);
+
+const auth =
+  getAuth(app);
+
+const db =
+  getFirestore(app);
+
+/* LOGIN */
+
+signInAnonymously(auth)
+  .then(() => {
+
+    console.log(
+      '🔥 Firebase Connected'
+    );
+
+  });
+
+/* GLOBAL */
+
+window.db = db;
+window.auth = auth;
+window.firebaseReady = true;
+
+</script>
+
 <script>
 
 /* =========================================
