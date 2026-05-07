@@ -1571,11 +1571,6 @@ textarea{
     <!-- RESULT -->
 
     <div id="adminResult"></div>
-    
-    <input
-      id="searchUsers"
-      placeholder="Search UID..."
-    >
 
     <!-- USERS -->
 
@@ -1584,6 +1579,13 @@ textarea{
       <h3>
         Users Database
       </h3>
+      
+      <input
+        id="searchUser"
+        type="text"
+        placeholder="Search UID..."
+        class="admin-search"
+      />
 
       <div id="usersList"></div>
 
@@ -1606,40 +1608,34 @@ textarea{
 </div>
 
 <!-- FIREBASE -->
-
 <script type="module">
 
 import {
-
   initializeApp
-
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
-
   getAuth,
   signInAnonymously,
   onAuthStateChanged
-
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
-
   getFirestore,
   doc,
   getDoc,
   updateDoc,
   serverTimestamp,
-
   setDoc,
   deleteDoc,
   getDocs,
   collection,
   onSnapshot
-
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* CONFIG */
+/* =========================================
+   CONFIG
+========================================= */
 
 const firebaseConfig = {
 
@@ -1652,45 +1648,24 @@ const firebaseConfig = {
 
 };
 
-/* INIT */
+/* =========================================
+   INIT
+========================================= */
 
 const app =
-
   initializeApp(firebaseConfig);
 
 const auth =
-
   getAuth(app);
 
 const db =
-
   getFirestore(app);
 
-/* LOGIN */
-
-signInAnonymously(auth)
-
-  .then(() => {
-
-    console.log(
-
-      '🔥 Firebase Connected'
-
-    );
-
-  })
-
-  .catch(err => {
-
-    console.error(err);
-
-  });
-
-/* GLOBAL */
+/* =========================================
+   GLOBAL
+========================================= */
 
 window.db = db;
-
-window.firebaseReady = true;
 
 window.firebaseTools = {
 
@@ -1698,136 +1673,197 @@ window.firebaseTools = {
   getDoc,
   updateDoc,
   serverTimestamp,
-
   setDoc,
   deleteDoc,
   getDocs,
   collection,
-  
   onSnapshot
 
 };
 
-window.firebaseReady = true;
+window.firebaseReady = false;
+
+/* =========================================
+   LOGIN
+========================================= */
+
+signInAnonymously(auth)
+
+  .then(() => {
+
+    console.log(
+      '🔥 Firebase Connected'
+    );
+
+  })
+
+  .catch(err => {
+
+    console.error(
+      'Firebase Login Error:',
+      err
+    );
+
+  });
 
 /* =========================================
    USER DATABASE SYSTEM
 ========================================= */
 
-onAuthStateChanged(auth, async user => {
+onAuthStateChanged(
 
-  if(!user) return;
+  auth,
 
-  try{
+  async user => {
 
-    const uid = user.uid;
+    if(!user) return;
 
-    window.currentUID = uid;
+    try{
 
-    const userRef =
+      const uid =
+        user.uid;
 
-      doc(
-        db,
-        'users',
+      window.currentUID =
+        uid;
+
+      const userRef =
+
+        doc(
+          db,
+          'users',
+          uid
+        );
+
+      /* GET LOCAL DATA */
+
+      const localUser =
+
+        JSON.parse(
+          localStorage.getItem(
+            'nexoraUser'
+          )
+        ) || {
+
+          plan:'FREE',
+          expires:null
+
+        };
+
+      const localUsage =
+
+        JSON.parse(
+          localStorage.getItem(
+            'nexoraUsage'
+          )
+        ) || {
+
+          count:0
+
+        };
+
+      /* CHECK BANNED */
+
+      const bannedSnap =
+        await getDoc(userRef);
+
+      if(
+        bannedSnap.exists() &&
+        bannedSnap.data().banned
+      ){
+
+        document.body.innerHTML = `
+
+          <div style="
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            height:100vh;
+            background:#000;
+            color:#fff;
+            font-size:22px;
+            text-align:center;
+            padding:20px;
+          ">
+
+            🚫 Your access has been blocked
+
+          </div>
+
+        `;
+
+        return;
+
+      }
+
+      /* SAVE USER */
+
+      await setDoc(
+
+        userRef,
+
+        {
+
+          uid:uid,
+
+          plan:
+            localUser.plan || 'FREE',
+
+          expires:
+            localUser.expires || null,
+
+          generations:
+            localUsage.count || 0,
+
+          online:true,
+
+          device:
+            navigator.userAgent,
+
+          lastSeen:
+            new Date()
+              .toLocaleString(),
+
+          lastActive:
+            serverTimestamp(),
+
+          createdAt:
+            serverTimestamp()
+
+        },
+
+        {
+
+          merge:true
+
+        }
+
+      );
+
+      console.log(
+        '👤 User Synced:',
         uid
       );
 
-    /* ALWAYS SAVE USER */
+      /* READY */
 
-const bannedSnap =
-  await getDoc(userRef);
+      window.firebaseReady =
+        true;
 
-if(
-  bannedSnap.exists() &&
-  bannedSnap.data().banned
-){
+    } catch(err){
 
-  document.body.innerHTML = `
+      console.error(
+        'User Sync Error:',
+        err
+      );
 
-    <div style="
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      height:100vh;
-      background:black;
-      color:white;
-      font-size:22px;
-      text-align:center;
-      padding:20px;
-    ">
-
-      🚫 Your access has been blocked
-
-    </div>
-
-  `;
-
-  return;
-
-}
-
-await setDoc(
-
-  userRef,
-
-  {
-
-    uid:uid,
-
-    plan:
-      userData?.plan || 'FREE',
-
-    expires:
-      userData?.expires || null,
-
-    generations:
-      usageData?.count || 0,
-
-    online:true,
-
-    device:
-      navigator.userAgent,
-
-    lastSeen:
-      new Date()
-        .toLocaleString(),
-
-    lastActive:
-      serverTimestamp(),
-
-    createdAt:
-      serverTimestamp()
-
-  },
-
-  {
-
-    merge:true
+    }
 
   }
 
 );
 
-    console.log(
-      '👤 User Synced:',
-      uid
-    );
-
-    window.firebaseReady = true;
-
-  } catch(err){
-
-    console.error(
-      'User Sync Error:',
-      err
-    );
-
-  }
-
-});
-
 /* =========================================
-   USER ONLINE STATUS
+   USER OFFLINE
 ========================================= */
 
 window.addEventListener(
@@ -1843,13 +1879,13 @@ window.addEventListener(
 
       const userRef =
 
-        window.firebaseTools.doc(
-          window.db,
+        doc(
+          db,
           'users',
           window.currentUID
         );
 
-      await window.firebaseTools.setDoc(
+      await setDoc(
 
         userRef,
 
@@ -1858,8 +1894,7 @@ window.addEventListener(
           online:false,
 
           lastActive:
-            window.firebaseTools
-              .serverTimestamp()
+            serverTimestamp()
 
         },
 
@@ -1873,7 +1908,10 @@ window.addEventListener(
 
     } catch(err){
 
-      console.error(err);
+      console.error(
+        'Offline Error:',
+        err
+      );
 
     }
 
@@ -3006,35 +3044,47 @@ redeemBtn.addEventListener(
 
 async function banUser(uid){
 
-  const userRef =
+  try{
 
-    window.firebaseTools.doc(
-      window.db,
-      'users',
-      uid
+    const userRef =
+
+      window.firebaseTools.doc(
+        window.db,
+        'users',
+        uid
+      );
+
+    await window.firebaseTools.setDoc(
+
+      userRef,
+
+      {
+
+        banned:true
+
+      },
+
+      {
+
+        merge:true
+
+      }
+
     );
 
-  await window.firebaseTools.setDoc(
+    showToast(
+      '🚫 User Banned'
+    );
 
-    userRef,
+  } catch(err){
 
-    {
+    console.error(err);
 
-      banned:true
+    showToast(
+      '❌ Failed Ban User'
+    );
 
-    },
-
-    {
-
-      merge:true
-
-    }
-
-  );
-
-  showToast(
-    '🚫 User Banned'
-  );
+  }
 
 }
 
@@ -3581,6 +3631,8 @@ const firebaseInterval =
    REALTIME USERS DATABASE
 ========================================= */
 
+let usersUnsubscribe = null;
+
 function startRealtimeUsers(){
 
   const usersList =
@@ -3592,6 +3644,12 @@ function startRealtimeUsers(){
     return;
   }
 
+  /* PREVENT DOUBLE LISTENER */
+
+  if(usersUnsubscribe){
+    usersUnsubscribe();
+  }
+
   const usersRef =
 
     window.firebaseTools.collection(
@@ -3599,170 +3657,230 @@ function startRealtimeUsers(){
       'users'
     );
 
-  window.firebaseTools.onSnapshot(
+  usersUnsubscribe =
 
-    usersRef,
+    window.firebaseTools.onSnapshot(
 
-    snapshot => {
+      usersRef,
 
-      let total = 0;
-      let pro = 0;
-      let online = 0;
-      let generations = 0;
+      snapshot => {
 
-      let html = '';
+        let total = 0;
+        let pro = 0;
+        let online = 0;
+        let generations = 0;
 
-      snapshot.forEach(docSnap => {
+        let html = '';
 
-        const data =
-          docSnap.data();
+        /* SEARCH */
 
-        total++;
+        const search =
 
-        if(data.plan === 'PRO'){
-          pro++;
-        }
+          document
+            .getElementById(
+              'searchUser'
+            )
+            ?.value
+            ?.toLowerCase() || '';
 
-        if(data.online){
-          online++;
-        }
+        snapshot.forEach(docSnap => {
 
-        generations +=
-          data.generations || 0;
+          const data =
+            docSnap.data();
 
-        /* SAFE UID */
+          /* SAFE UID */
 
-        const uid =
-          data.uid
-          ? data.uid
-          : docSnap.id;
+          const uid =
 
-        html += `
+            data.uid
+            ? data.uid
+            : docSnap.id;
 
-  <div class="user-item">
+          /* SEARCH FILTER */
 
-    <div class="user-top">
+          if(
+            !uid
+              .toLowerCase()
+              .includes(search)
+          ){
+            return;
+          }
 
-      <div>
+          total++;
 
-        <b>
-          ${uid.slice(0,12)}...
-        </b>
+          if(data.plan === 'PRO'){
+            pro++;
+          }
 
-        <div class="uid-mini">
-          ${uid}
-        </div>
+          if(data.online){
+            online++;
+          }
 
-      </div>
+          generations +=
+            data.generations || 0;
 
-      <span class="
-        ${
-          data.plan === 'PRO'
-          ? 'pro-badge'
-          : 'free-badge'
-        }
-      ">
-        ${data.plan || 'FREE'}
-      </span>
+          html += `
 
-    </div>
+            <div class="user-item">
 
-    <div class="user-info">
+              <div class="user-top">
 
-      <div>
-        📅 Exp:
-        ${data.expires || 'NONE'}
-      </div>
+                <div>
 
-      <div>
-        ⚡ Generations:
-        ${data.generations || 0}
-      </div>
+                  <b>
+                    ${uid.slice(0,12)}...
+                  </b>
 
-      <div>
-        🌐 Device:
-        ${data.device || 'Unknown'}
-      </div>
+                  <div class="uid-mini">
+                    ${uid}
+                  </div>
 
-      <div>
-        🕒 Last Active:
-        ${
-          data.lastSeen || 'Now'
-        }
-      </div>
+                </div>
 
-      <div>
-        ${
-          data.online
-          ? '🟢 ONLINE'
-          : '⚫ OFFLINE'
-        }
-      </div>
+                <span class="
+                  ${
+                    data.plan === 'PRO'
+                    ? 'pro-badge'
+                    : 'free-badge'
+                  }
+                ">
 
-    </div>
+                  ${data.plan || 'FREE'}
 
-    <div class="user-actions">
+                </span>
 
-      <button
-        onclick="
-          removeProUser(
-            '${uid}'
-          )
-        "
-      >
-        Remove PRO
-      </button>
+              </div>
 
-      <button
-        onclick="
-          banUser(
-            '${uid}'
-          )
-        "
-      >
-        Ban
-      </button>
+              <div class="user-info">
 
-    </div>
+                <div>
+                  📅 Exp:
+                  ${data.expires || 'NONE'}
+                </div>
 
-  </div>
+                <div>
+                  ⚡ Generations:
+                  ${data.generations || 0}
+                </div>
 
-`;
+                <div>
+                  🌐 Device:
+                  ${
+                    data.device
+                    ? data.device
+                        .slice(0,40)
+                    : 'Unknown'
+                  }
+                </div>
 
-      });
+                <div>
+                  🕒 Last Active:
+                  ${data.lastSeen || 'Now'}
+                </div>
 
-      /* ANALYTICS */
+                <div>
+                  ${
+                    data.online
+                    ? '🟢 ONLINE'
+                    : '⚫ OFFLINE'
+                  }
+                </div>
 
-      document.getElementById(
-        'totalUsers'
-      ).innerHTML = total;
+              </div>
 
-      document.getElementById(
-        'proUsers'
-      ).innerHTML = pro;
+              <div class="user-actions">
 
-      document.getElementById(
-        'onlineUsers'
-      ).innerHTML = online;
+                <button
+                  onclick="
+                    removeProUser(
+                      '${uid}'
+                    )
+                  "
+                >
+                  Remove PRO
+                </button>
 
-      document.getElementById(
-        'totalGenerations'
-      ).innerHTML = generations;
+                <button
+                  onclick="
+                    banUser(
+                      '${uid}'
+                    )
+                  "
+                >
+                  Ban
+                </button>
 
-      usersList.innerHTML =
-        html || 'No Users Found';
+              </div>
 
-    },
+            </div>
 
-    err => {
+          `;
 
-      console.error(
-        'Realtime Users Error:',
-        err
-      );
+        });
+
+        /* ANALYTICS */
+
+        document.getElementById(
+          'totalUsers'
+        ).innerHTML = total;
+
+        document.getElementById(
+          'proUsers'
+        ).innerHTML = pro;
+
+        document.getElementById(
+          'onlineUsers'
+        ).innerHTML = online;
+
+        document.getElementById(
+          'totalGenerations'
+        ).innerHTML = generations;
+
+        usersList.innerHTML =
+
+          html || `
+
+            <div class="empty-state">
+
+              No Users Found
+
+            </div>
+
+          `;
+
+      },
+
+      err => {
+
+        console.error(
+          'Realtime Users Error:',
+          err
+        );
+
+      }
+
+    );
+
+}
+
+/* =========================================
+   SEARCH REALTIME
+========================================= */
+
+const searchInput =
+  document.getElementById(
+    'searchUser'
+  );
+
+if(searchInput){
+
+  searchInput.addEventListener(
+    'input',
+    () => {
+
+      startRealtimeUsers();
 
     }
-
   );
 
 }
