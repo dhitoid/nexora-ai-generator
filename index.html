@@ -2857,6 +2857,12 @@ const closeAdmin =
 
 const adminResult =
   document.getElementById('adminResult');
+  
+const codesList =
+  document.getElementById('codesList');
+
+const usersList =
+  document.getElementById('usersList');
 
 /* OPEN SECRET */
 
@@ -3096,17 +3102,21 @@ document
    LOAD REDEEM CODES
 ========================================= */
 
+/* =========================================
+   LOAD REDEEM CODES
+========================================= */
+
 async function loadCodes(){
 
-  const codesList =
-    document.getElementById('codesList');
+  if(!codesList) return;
 
   codesList.innerHTML =
-    'Loading...';
+    'Loading codes...';
 
   try{
 
     const querySnapshot =
+
       await window.firebaseTools.getDocs(
 
         window.firebaseTools.collection(
@@ -3146,14 +3156,15 @@ async function loadCodes(){
     });
 
     codesList.innerHTML =
-      html || 'No codes';
+
+      html || 'No redeem codes';
 
   } catch(err){
 
     console.error(err);
 
     codesList.innerHTML =
-        err.message;
+      err.message;
 
   }
 
@@ -3169,6 +3180,9 @@ const firebaseInterval =
     clearInterval(firebaseInterval);
 
     loadCodes();
+    showToast(
+  '✨ Code Saved To Firebase'
+);
 
   }
 
