@@ -893,6 +893,97 @@ textarea{
   border:1px solid rgba(255,255,255,0.06);
 }
 
+/* ANALYTICS */
+
+.analytics-grid{
+
+  display:grid;
+
+  grid-template-columns:
+    repeat(2,1fr);
+
+  gap:14px;
+
+  margin-bottom:28px;
+}
+
+.analytics-card{
+
+  padding:20px;
+
+  border-radius:20px;
+
+  background:
+    rgba(255,255,255,0.05);
+
+  border:
+    1px solid rgba(255,255,255,0.06);
+}
+
+.analytics-card h3{
+
+  font-size:28px;
+
+  margin-bottom:8px;
+}
+
+.analytics-card p{
+
+  color:#9CA3AF;
+}
+
+/* USERS */
+
+.user-item{
+
+  padding:18px;
+
+  border-radius:18px;
+
+  background:
+    rgba(255,255,255,0.05);
+
+  margin-bottom:14px;
+
+  line-height:1.9;
+
+  border:
+    1px solid rgba(255,255,255,0.06);
+}
+
+.user-actions{
+
+  display:flex;
+
+  gap:10px;
+
+  margin-top:14px;
+}
+
+.user-actions button{
+
+  flex:1;
+
+  padding:12px;
+
+  border:none;
+
+  border-radius:14px;
+
+  cursor:pointer;
+
+  font-weight:700;
+
+  color:white;
+
+  background:
+    linear-gradient(
+      135deg,
+      #7B61FF,
+      #00C2FF
+    );
+}
+
 /* MOBILE */
 
 @media(max-width:768px){
@@ -1294,6 +1385,44 @@ textarea{
         Nexora AI Control Panel
       </p>
       
+      <!-- ANALYTICS -->
+
+      <div class="analytics-grid">
+      
+        <div class="analytics-card">
+          <h3 id="totalUsers">0</h3>
+          <p>Total Users</p>
+        </div>
+      
+        <div class="analytics-card">
+          <h3 id="proUsers">0</h3>
+          <p>PRO Users</p>
+        </div>
+      
+        <div class="analytics-card">
+          <h3 id="onlineUsers">0</h3>
+          <p>Online Users</p>
+        </div>
+      
+        <div class="analytics-card">
+          <h3 id="totalGenerations">0</h3>
+          <p>Total Generations</p>
+        </div>
+      
+      </div>
+      
+      <!-- USERS -->
+      
+      <div class="admin-codes">
+      
+        <h3>
+          Users Database
+        </h3>
+      
+        <div id="usersList"></div>
+      
+      </div>
+      
       <div class="admin-codes">
 
       <h3>
@@ -1377,8 +1506,8 @@ import {
 import {
 
   getAuth,
-
-  signInAnonymously
+  signInAnonymously,
+  onAuthStateChanged
 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
@@ -1394,6 +1523,7 @@ import {
   deleteDoc,
   getDocs,
   collection
+  onSnapshot
 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -1459,10 +1589,73 @@ window.firebaseTools = {
   deleteDoc,
   getDocs,
   collection
+  
+  onSnapshot
 
 };
 
 window.firebaseReady = true;
+
+/* =========================================
+   USER DATABASE SYSTEM
+========================================= */
+
+onAuthStateChanged(auth, async user => {
+
+  if(!user) return;
+
+  const uid = user.uid;
+
+  window.currentUID = uid;
+
+  const userRef =
+    doc(db, 'users', uid);
+
+  const userSnap =
+    await getDoc(userRef);
+
+  /* NEW USER */
+
+  if(!userSnap.exists()){
+
+    await setDoc(userRef, {
+
+      uid,
+
+      plan:'FREE',
+
+      expires:null,
+
+      generations:0,
+
+      online:true,
+
+      createdAt:
+        serverTimestamp(),
+
+      lastActive:
+        serverTimestamp()
+
+    });
+
+  }
+
+  /* UPDATE ONLINE */
+
+  await updateDoc(userRef, {
+
+    online:true,
+
+    lastActive:
+      serverTimestamp()
+
+  });
+
+  console.log(
+    '👤 User Synced'
+  );
+
+});
 
 </script>
 
@@ -2361,6 +2554,34 @@ function canGenerate(){
   /* PRO USER */
 
   if(userData.plan === 'PRO'){
+    
+  /* TRACK GENERATION */
+
+  if(window.currentUID){
+  
+    const userRef =
+      window.firebaseTools.doc(
+        db,
+        'users',
+        window.currentUID
+      );
+  
+    window.firebaseTools.updateDoc(
+      userRef,
+      {
+  
+        generations:
+          usageData.count,
+  
+        lastActive:
+          window.firebaseTools
+            .serverTimestamp()
+  
+      }
+  
+    );
+  
+  }
 
     return true;
 
@@ -2944,6 +3165,161 @@ const firebaseInterval =
   }
 
 }, 300);
+
+/* =========================================
+   LOAD USERS
+========================================= */
+
+async function loadUsers(){
+
+  const usersList =
+    document.getElementById('usersList');
+
+  try{
+
+    const snapshot =
+      await window.firebaseTools.getDocs(
+
+        window.firebaseTools.collection(
+          db,
+          'users'
+        )
+
+      );
+
+    let total = 0;
+    let pro = 0;
+    let online = 0;
+    let generations = 0;
+
+    let html = '';
+
+    snapshot.forEach(docSnap => {
+
+      const data =
+        docSnap.data();
+
+      total++;
+
+      if(data.plan === 'PRO'){
+        pro++;
+      }
+
+      if(data.online){
+        online++;
+      }
+
+      generations +=
+        data.generations || 0;
+
+      html += `
+
+        <div class="user-item">
+
+          <b>${data.uid}</b>
+
+          <br>
+
+          Plan:
+          ${data.plan}
+
+          <br>
+
+          Exp:
+          ${data.expires || 'NONE'}
+
+          <br>
+
+          Generations:
+          ${data.generations || 0}
+
+          <div class="user-actions">
+
+            <button
+              onclick="
+                removeProUser(
+                  '${data.uid}'
+                )
+              "
+            >
+              Remove PRO
+            </button>
+
+          </div>
+
+        </div>
+
+      `;
+
+    });
+
+    /* STATS */
+
+    document.getElementById(
+      'totalUsers'
+    ).innerHTML = total;
+
+    document.getElementById(
+      'proUsers'
+    ).innerHTML = pro;
+
+    document.getElementById(
+      'onlineUsers'
+    ).innerHTML = online;
+
+    document.getElementById(
+      'totalGenerations'
+    ).innerHTML = generations;
+
+    usersList.innerHTML = html;
+
+  } catch(err){
+
+    console.error(err);
+
+  }
+
+}
+
+/* =========================================
+   REMOVE PRO USER
+========================================= */
+
+async function removeProUser(uid){
+
+  const userRef =
+    window.firebaseTools.doc(
+      db,
+      'users',
+      uid
+    );
+
+  await window.firebaseTools.updateDoc(
+    userRef,
+    {
+
+      plan:'FREE',
+      expires:null
+
+    }
+
+  );
+
+  showToast(
+    '⚠️ User PRO Removed'
+  );
+
+  loadUsers();
+
+}
+
+/* AUTO LOAD */
+
+setTimeout(() => {
+
+  loadUsers();
+
+}, 2000);
 
 /* =========================================
    DEMO PRO ACCESS
