@@ -465,6 +465,98 @@ textarea{
 
 }
 
+/* FOOTER */
+
+.footer{
+  margin-top:120px;
+  padding:70px 7% 40px;
+  border-top:1px solid rgba(255,255,255,0.06);
+  background:rgba(255,255,255,0.02);
+  backdrop-filter:blur(20px);
+}
+
+.footer-top{
+  display:flex;
+  justify-content:space-between;
+  gap:60px;
+  flex-wrap:wrap;
+}
+
+.footer-brand{
+  max-width:320px;
+}
+
+.footer-brand h2{
+  font-size:32px;
+  margin-bottom:14px;
+  background:linear-gradient(
+    135deg,
+    #7B61FF,
+    #00C2FF
+  );
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+.footer-brand p{
+  color:#9FA4B5;
+  line-height:1.8;
+}
+
+.footer-links{
+  display:flex;
+  gap:60px;
+  flex-wrap:wrap;
+}
+
+.footer-column{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.footer-column h4{
+  margin-bottom:10px;
+  font-size:16px;
+}
+
+.footer-column a{
+  color:#9FA4B5;
+  text-decoration:none;
+  transition:0.3s;
+}
+
+.footer-column a:hover{
+  color:white;
+  transform:translateX(4px);
+}
+
+.footer-bottom{
+  margin-top:50px;
+  padding-top:30px;
+  border-top:1px solid rgba(255,255,255,0.06);
+  text-align:center;
+}
+
+.footer-bottom p{
+  color:#7E8597;
+  font-size:14px;
+}
+
+/* MOBILE */
+
+@media(max-width:768px){
+
+  .footer{
+    padding:60px 24px 30px;
+  }
+
+  .footer-links{
+    gap:40px;
+  }
+
+}
+
 /* MOBILE */
 
 @media(max-width:768px){
@@ -661,6 +753,96 @@ textarea{
 </section>
 
 <div id="toast"></div>
+
+<!-- FOOTER -->
+
+<footer class="footer">
+
+  <div class="footer-top">
+
+    <div class="footer-brand">
+
+      <h2>
+        Nexora AI
+      </h2>
+
+      <p>
+        AI-powered marketing generator
+        for modern property business.
+      </p>
+
+    </div>
+
+    <div class="footer-links">
+
+      <div class="footer-column">
+
+        <h4>Product</h4>
+
+        <a href="#">
+          AI Generator
+        </a>
+
+        <a href="#">
+          Viral Hooks
+        </a>
+
+        <a href="#">
+          Smart Copywriting
+        </a>
+
+      </div>
+
+      <div class="footer-column">
+
+        <h4>Brand</h4>
+
+        <a href="#">
+          DTSCRIPTID
+        </a>
+
+        <a href="#">
+          Digital Studio
+        </a>
+
+        <a href="#">
+          AI Products
+        </a>
+
+      </div>
+
+      <div class="footer-column">
+
+        <h4>Support</h4>
+
+        <a href="#">
+          Contact
+        </a>
+
+        <a href="#">
+          Help Center
+        </a>
+
+        <a href="#">
+          Privacy Policy
+        </a>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+
+    <p>
+      © 2026 Nexora AI —
+      Crafted by DTSCRIPTID ✨
+    </p>
+
+  </div>
+
+</footer>
 
 <script>
 
