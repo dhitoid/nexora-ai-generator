@@ -3088,37 +3088,6 @@ async function banUser(uid){
 
 }
 
-const searchUsers =
-  document.getElementById(
-    'searchUsers'
-  );
-
-searchUsers.addEventListener(
-  'input',
-  e => {
-
-    const value =
-      e.target.value
-        .toLowerCase();
-
-    document
-      .querySelectorAll('.user-item')
-      .forEach(card => {
-
-        card.style.display =
-
-          card.innerText
-            .toLowerCase()
-            .includes(value)
-
-          ? 'block'
-          : 'none';
-
-      });
-
-  }
-);
-
 /* =========================================
    CONFETTI EFFECT
 ========================================= */
