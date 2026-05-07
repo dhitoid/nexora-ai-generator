@@ -1231,28 +1231,34 @@ textarea{
 
 <script type="module">
 
+<script type="module">
+
 import {
+
   initializeApp
+
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
+
   getAuth,
+
   signInAnonymously
+
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
+
   getFirestore,
+
   doc,
-  setDoc,
+
   getDoc,
+
   updateDoc,
-  collection,
-  addDoc,
-  getDocs,
-  query,
-  where,
-  serverTimestamp,
-  deleteDoc
+
+  serverTimestamp
+
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* CONFIG */
@@ -1271,30 +1277,52 @@ const firebaseConfig = {
 /* INIT */
 
 const app =
+
   initializeApp(firebaseConfig);
 
 const auth =
+
   getAuth(app);
 
 const db =
+
   getFirestore(app);
 
 /* LOGIN */
 
 signInAnonymously(auth)
+
   .then(() => {
 
     console.log(
+
       '🔥 Firebase Connected'
+
     );
+
+  })
+
+  .catch(err => {
+
+    console.error(err);
 
   });
 
 /* GLOBAL */
 
 window.db = db;
-window.auth = auth;
-window.firebaseReady = true;
+
+window.firebaseTools = {
+
+  doc,
+
+  getDoc,
+
+  updateDoc,
+
+  serverTimestamp
+
+};
 
 </script>
 
@@ -2271,10 +2299,14 @@ redeemBtn.addEventListener(
   try{
 
     const codeRef =
-      doc(db, 'redeemCodes', code);
+  firebaseTools.doc(
+    db,
+    'redeemCodes',
+    code
+  );
 
     const codeSnap =
-      await getDoc(codeRef);
+      await firebaseTools.getDoc(codeRef);
 
     /* NOT FOUND */
 
@@ -2340,10 +2372,10 @@ redeemBtn.addEventListener(
 
     /* MARK USED */
 
-    await updateDoc(codeRef, {
+    await firebaseTools.updateDoc(codeRef, {
 
       used:true,
-      usedAt:serverTimestamp()
+      usedAt:firebaseTools.serverTimestamp()
 
     });
 
