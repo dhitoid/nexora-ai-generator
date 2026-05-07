@@ -1613,7 +1613,9 @@ import {
 import {
 
   getAuth,
+
   signInAnonymously,
+
   onAuthStateChanged
 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -1621,15 +1623,23 @@ import {
 import {
 
   getFirestore,
+
   doc,
+
   getDoc,
+
   updateDoc,
+
   serverTimestamp,
 
   setDoc,
+
   deleteDoc,
+
   getDocs,
+
   collection,
+
   onSnapshot
 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -1647,7 +1657,11 @@ const firebaseConfig = {
 
 };
 
-/* INIT */
+/* =========================================
+
+   INIT
+
+========================================= */
 
 const app =
 
@@ -1661,7 +1675,43 @@ const db =
 
   getFirestore(app);
 
-/* LOGIN */
+/* =========================================
+
+   GLOBAL
+
+========================================= */
+
+window.db = db;
+
+window.firebaseTools = {
+
+  doc,
+
+  getDoc,
+
+  updateDoc,
+
+  serverTimestamp,
+
+  setDoc,
+
+  deleteDoc,
+
+  getDocs,
+
+  collection,
+
+  onSnapshot
+
+};
+
+window.firebaseReady = false;
+
+/* =========================================
+
+   LOGIN
+
+========================================= */
 
 signInAnonymously(auth)
 
@@ -1681,91 +1731,143 @@ signInAnonymously(auth)
 
   });
 
-/* GLOBAL */
-
-window.db = db;
-
-window.firebaseReady = true;
-
-window.firebaseTools = {
-
-  doc,
-  getDoc,
-  updateDoc,
-  serverTimestamp,
-
-  setDoc,
-  deleteDoc,
-  getDocs,
-  collection,
-  
-  onSnapshot
-
-};
-
-window.firebaseReady = true;
-
 /* =========================================
+
    USER DATABASE SYSTEM
+
 ========================================= */
 
 onAuthStateChanged(auth, async user => {
 
   if(!user) return;
 
-  const uid = user.uid;
+  try{
 
-  window.currentUID = uid;
+    const uid = user.uid;
 
-  const userRef =
-    doc(db, 'users', uid);
+    window.currentUID = uid;
 
-  const userSnap =
-    await getDoc(userRef);
+    const userRef =
 
-  /* NEW USER */
+      doc(db, 'users', uid);
 
-  if(!userSnap.exists()){
+    const userSnap =
 
-    await setDoc(userRef, {
+      await getDoc(userRef);
 
-      uid,
+    /* NEW USER */
 
-      plan:'FREE',
+    if(!userSnap.exists()){
 
-      expires:null,
+      await setDoc(userRef, {
 
-      generations:0,
+        uid,
 
-      online:true,
+        plan:'FREE',
 
-      createdAt:
-        serverTimestamp(),
+        expires:null,
 
-      lastActive:
-        serverTimestamp()
+        generations:0,
 
-    });
+        online:true,
+
+        createdAt:
+
+          serverTimestamp(),
+
+        lastActive:
+
+          serverTimestamp()
+
+      });
+
+    } else {
+
+      /* UPDATE ONLINE */
+
+      await updateDoc(userRef, {
+
+        online:true,
+
+        lastActive:
+
+          serverTimestamp()
+
+      });
+
+    }
+
+    console.log(
+
+      '👤 User Synced'
+
+    );
+
+    /* READY */
+
+    window.firebaseReady = true;
+
+  } catch(err){
+
+    console.error(
+
+      'Firebase User Error:',
+
+      err
+
+    );
 
   }
 
-  /* UPDATE ONLINE */
-
-  await updateDoc(userRef, {
-
-    online:true,
-
-    lastActive:
-      serverTimestamp()
-
-  });
-
-  console.log(
-    '👤 User Synced'
-  );
-  window.firebaseReady = true;
-
 });
+
+/* =========================================
+
+   USER OFFLINE
+
+========================================= */
+
+window.addEventListener(
+
+  'beforeunload',
+
+  async () => {
+
+    if(!window.currentUID) return;
+
+    try{
+
+      const userRef =
+
+        doc(
+
+          db,
+
+          'users',
+
+          window.currentUID
+
+        );
+
+      await updateDoc(userRef, {
+
+        online:false,
+
+        lastActive:
+
+          serverTimestamp()
+
+      });
+
+    } catch(err){
+
+      console.error(err);
+
+    }
+
+  }
+
+);
 
 </script>
 
@@ -3313,15 +3415,22 @@ function startRealtimeCodes(){
 const realtimeInterval =
   setInterval(() => {
 
-  if(window.firebaseReady){
+  if(
+    window.firebaseReady &&
+    window.firebaseTools &&
+    window.db
+  ){
 
-    clearInterval(realtimeInterval);
+    clearInterval(
+      realtimeInterval
+    );
+
     startRealtimeUsers();
+
     startRealtimeCodes();
-    startRealtimeLogs();
 
     console.log(
-      '🔥 Realtime Admin Started'
+      '🔥 Realtime Started'
     );
 
   }
@@ -3551,24 +3660,7 @@ async function removeProUser(uid){
     '⚠️ User PRO Removed'
   );
 
-  loadUsers();
-
 }
-
-/* AUTO LOAD */
-
-const usersInterval =
-  setInterval(() => {
-
-  if(window.firebaseReady){
-
-    clearInterval(usersInterval);
-
-    loadUsers();
-
-  }
-
-}, 500);
 
 /* =========================================
    DEMO PRO ACCESS
