@@ -230,6 +230,65 @@ body{
   margin-top:30px;
 }
 
+/* TABS */
+
+.tabs{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:20px;
+}
+
+.tab-btn{
+  padding:12px 18px;
+  border:none;
+  border-radius:14px;
+  background:rgba(255,255,255,0.06);
+  color:white;
+  cursor:pointer;
+  transition:0.3s;
+  font-size:14px;
+}
+
+.tab-btn:hover{
+  transform:translateY(-2px);
+}
+
+.tab-btn.active{
+  background:linear-gradient(135deg,#7B61FF,#00C2FF);
+}
+
+/* TAB CONTENT */
+
+.tab-content{
+  min-height:320px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:18px;
+  padding:20px;
+  line-height:1.8;
+  white-space:pre-wrap;
+  font-size:15px;
+}
+
+/* IOS ZOOM FIX */
+
+.input-group input,
+.input-group select,
+textarea{
+  font-size:16px;
+}
+
+/* CARD HOVER */
+
+.generator-card{
+  transition:0.4s;
+}
+
+.generator-card:hover{
+  transform:translateY(-4px);
+}
+
 .output-top{
   display:flex;
   justify-content:space-between;
@@ -393,19 +452,45 @@ textarea{
 
     <div class="output-box">
 
-      <div class="output-top">
-        <h3>Generated Content</h3>
+  <div class="output-top">
 
-        <button id="copyBtn">
-          Copy
-        </button>
-      </div>
+    <h3>Generated Content</h3>
 
-      <textarea id="output" readonly placeholder="Your AI content will appear here..."></textarea>
-
-    </div>
+    <button id="copyBtn">
+      Copy
+    </button>
 
   </div>
+
+  <!-- TABS -->
+
+  <div class="tabs">
+
+    <button class="tab-btn active" data-tab="instagram">
+      Instagram
+    </button>
+
+    <button class="tab-btn" data-tab="tiktok">
+      TikTok
+    </button>
+
+    <button class="tab-btn" data-tab="meta">
+      Meta Ads
+    </button>
+
+    <button class="tab-btn" data-tab="whatsapp">
+      WhatsApp
+    </button>
+
+  </div>
+
+  <!-- OUTPUT -->
+
+  <div id="tabContent" class="tab-content">
+    Your AI content will appear here...
+  </div>
+
+</div>
 
 </section>
 
@@ -416,8 +501,22 @@ textarea{
 ========================================= */
 
 const generateBtn = document.getElementById('generateBtn');
-const output = document.getElementById('output');
 const copyBtn = document.getElementById('copyBtn');
+const tabContent = document.getElementById('tabContent');
+
+const tabButtons =
+  document.querySelectorAll('.tab-btn');
+
+let generatedData = {
+
+  instagram: '',
+  tiktok: '',
+  meta: '',
+  whatsapp: ''
+
+};
+
+let currentTab = 'instagram';
 
 /* =========================================
    DATABASE
@@ -454,11 +553,15 @@ const emotions = [
 const emojis = ["🔥","✨","😱","🏡","🚀","💯"];
 
 /* =========================================
-   HELPER
+   HELPERS
 ========================================= */
 
 function random(arr){
-  return arr[Math.floor(Math.random() * arr.length)];
+
+  return arr[
+    Math.floor(Math.random() * arr.length)
+  ];
+
 }
 
 function replaceTemplate(text, data){
@@ -468,6 +571,28 @@ function replaceTemplate(text, data){
     .replaceAll('{price}', data.price)
     .replaceAll('{promo}', data.promo)
     .replaceAll('{type}', data.type);
+
+}
+
+function typeWriter(text){
+
+  tabContent.innerHTML = '';
+
+  let i = 0;
+
+  const speed = 8;
+
+  const typing = setInterval(() => {
+
+    tabContent.innerHTML += text.charAt(i);
+
+    i++;
+
+    if(i >= text.length){
+      clearInterval(typing);
+    }
+
+  }, speed);
 
 }
 
@@ -486,7 +611,8 @@ function loadingSteps(){
 
     const interval = setInterval(() => {
 
-      output.value = steps[index];
+      tabContent.innerHTML =
+        steps[index];
 
       index++;
 
@@ -507,10 +633,37 @@ function loadingSteps(){
 }
 
 /* =========================================
+   TAB SYSTEM
+========================================= */
+
+tabButtons.forEach(btn => {
+
+  btn.addEventListener('click', () => {
+
+    tabButtons.forEach(b =>
+      b.classList.remove('active')
+    );
+
+    btn.classList.add('active');
+
+    currentTab =
+      btn.dataset.tab;
+
+    typeWriter(
+      generatedData[currentTab]
+    );
+
+  });
+
+});
+
+/* =========================================
    GENERATOR
 ========================================= */
 
 generateBtn.addEventListener('click', async () => {
+
+  navigator.vibrate?.(30);
 
   const data = {
 
@@ -541,8 +694,6 @@ generateBtn.addEventListener('click', async () => {
 
   await loadingSteps();
 
-  /* RANDOMIZED CONTENT */
-
   const hook1 =
     replaceTemplate(random(hooks), data);
 
@@ -558,21 +709,47 @@ generateBtn.addEventListener('click', async () => {
   const emoji =
     random(emojis);
 
-  /* INSTAGRAM */
+  /* TONE ENGINE */
 
-  const instagram = `
-${emoji} Hunian ${emotion} di ${data.location} dengan ${data.type} mulai ${data.price}.
+  let intro = '';
 
-Nikmati promo ${data.promo} dan rasakan tinggal di lokasi strategis dengan akses mudah ke mana saja.
+  switch(data.tone){
 
-Cocok untuk ${data.market} yang ingin punya rumah nyaman dengan cicilan ringan.
+    case 'Luxury':
+      intro =
+        'Hunian eksklusif dengan desain modern premium.';
+      break;
+
+    case 'Urgent':
+      intro =
+        'Promo terbatas dan unit hampir habis!';
+      break;
+
+    case 'Friendly':
+      intro =
+        'Rumah nyaman untuk keluarga muda 😊';
+      break;
+
+    default:
+      intro =
+        'Kesempatan terbaik punya rumah impian.';
+  }
+
+  /* OUTPUT */
+
+  generatedData.instagram = `
+${emoji} ${intro}
+
+Hunian ${emotion} di ${data.location} dengan ${data.type} mulai ${data.price}.
+
+Promo ${data.promo} khusus minggu ini.
+
+Cocok untuk ${data.market}.
 
 ${cta}
 `;
 
-  /* TIKTOK */
-
-  const tiktok = `
+  generatedData.tiktok = `
 ${hook1}
 
 ${hook2}
@@ -580,21 +757,15 @@ ${hook2}
 ${cta}
 `;
 
-  /* META ADS */
-
-  const metaAds = `
+  generatedData.meta = `
 Cari rumah ${emotion} dekat ${data.location}?
 
 Kini hadir hunian ${data.type} mulai ${data.price} dengan promo ${data.promo}.
 
-Cocok untuk ${data.market}.
-
 ${cta}
 `;
 
-  /* WHATSAPP */
-
-  const whatsapp = `
+  generatedData.whatsapp = `
 Halo kak 👋
 
 Untuk unit di ${data.location} masih tersedia dan saat ini ada promo ${data.promo}.
@@ -604,30 +775,19 @@ Rumah ${data.type} mulai ${data.price} dan cocok untuk ${data.market}.
 Kalau berkenan, minggu ini bisa jadwalkan survey lokasi 😊
 `;
 
-  /* OUTPUT */
+  currentTab = 'instagram';
 
-  output.value =
-`📱 INSTAGRAM
+  tabButtons.forEach(btn =>
+    btn.classList.remove('active')
+  );
 
-${instagram}
+  document
+    .querySelector('[data-tab="instagram"]')
+    .classList.add('active');
 
-━━━━━━━━━━━━━━━━━━
-
-🎬 TIKTOK
-
-${tiktok}
-
-━━━━━━━━━━━━━━━━━━
-
-📢 META ADS
-
-${metaAds}
-
-━━━━━━━━━━━━━━━━━━
-
-💬 WHATSAPP
-
-${whatsapp}`;
+  typeWriter(
+    generatedData.instagram
+  );
 
   generateBtn.disabled = false;
 
@@ -642,9 +802,9 @@ ${whatsapp}`;
 
 copyBtn.addEventListener('click', () => {
 
-  output.select();
-
-  document.execCommand('copy');
+  navigator.clipboard.writeText(
+    generatedData[currentTab]
+  );
 
   copyBtn.innerHTML = '✅ Copied';
 
