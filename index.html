@@ -1551,9 +1551,15 @@ textarea{
     <div class="admin-input">
 
       <input
+        id="generateName"
+        type="text"
+        placeholder="Code Name (VIP / PROMO)"
+      >
+      
+      <input
         id="generateDays"
         type="text"
-        placeholder="Generate code days"
+        placeholder="7 / 30 / LIFETIME"
       >
 
       <button id="generateCodeBtn">
@@ -1588,6 +1594,16 @@ textarea{
 
       <div id="codesList"></div>
 
+    </div>
+    
+    <div class="admin-codes">
+    
+      <h3>
+        Live Activity
+      </h3>
+    
+      <div id="activityLogs"></div>
+    
     </div>
 
   </div>
@@ -1748,6 +1764,8 @@ onAuthStateChanged(auth, async user => {
   await updateDoc(userRef, {
 
     online:true,
+    
+    lastPing:Date.now()
 
     lastActive:
       serverTimestamp()
@@ -2730,6 +2748,49 @@ bisa kamu tambah sendiri nanti
 */
 
 /* =========================================
+   USER HEARTBEAT
+========================================= */
+
+setInterval(async () => {
+
+  if(!window.currentUID)
+    return;
+
+  const userRef =
+
+    window.firebaseTools.doc(
+      window.db,
+      'users',
+      window.currentUID
+    );
+
+  await window.firebaseTools.setDoc(
+
+    userRef,
+
+    {
+
+      online:true,
+
+      lastPing:Date.now(),
+
+      lastActive:
+        window.firebaseTools
+          .serverTimestamp()
+
+    },
+
+    {
+
+      merge:true
+
+    }
+
+  );
+
+}, 15000);
+
+/* =========================================
    UNIQUE PRO CODES
 ========================================= */
 
@@ -3102,7 +3163,7 @@ document
 });
 
 /* =========================================
-   FIREBASE CREATE CODE
+   CREATE CODE SYSTEM
 ========================================= */
 
 document
@@ -3112,7 +3173,15 @@ document
     const days =
       document
         .getElementById('generateDays')
-        .value;
+        .value
+        .trim();
+
+    const name =
+      document
+        .getElementById('generateName')
+        .value
+        .trim()
+        .toUpperCase();
 
     if(!days){
 
@@ -3124,19 +3193,24 @@ document
 
     }
 
-    /* RANDOM CODE */
+    /* RANDOM */
 
     const random =
       Math.floor(
         1000 + Math.random() * 9000
       );
 
+    /* CODE */
+
     const code =
-      `DTS-${days}-${random}`;
+
+      `DTS-${
+        name || 'PRO'
+      }-${random}`;
 
     try{
 
-      /* SAVE FIREBASE */
+      /* SAVE */
 
       await window.firebaseTools.setDoc(
 
@@ -3148,6 +3222,9 @@ document
 
         {
 
+          name:
+            name || 'PRO',
+
           days:
             days === 'LIFETIME'
             ? 'LIFETIME'
@@ -3156,7 +3233,8 @@ document
           used:false,
 
           createdAt:
-            window.firebaseTools.serverTimestamp()
+            window.firebaseTools
+              .serverTimestamp()
 
         }
 
@@ -3174,15 +3252,18 @@ document
 
           <b>${code}</b>
 
+          <br><br>
+
+          Duration:
+          ${days}
+
         </div>
 
       `;
 
       showToast(
-        '✨ Code Saved To Firebase'
+        '✨ Redeem Code Created'
       );
-      
-      loadCodes();
 
     } catch(err){
 
@@ -3193,6 +3274,8 @@ document
       );
 
     }
+    
+    saveLog('Generated Content');
 
 });
 
@@ -3277,6 +3360,8 @@ function startRealtimeCodes(){
     }
 
   );
+  
+  saveLog('Generated Content');
 
 }
 
@@ -3290,10 +3375,9 @@ const realtimeInterval =
   if(window.firebaseReady){
 
     clearInterval(realtimeInterval);
-
     startRealtimeUsers();
-
     startRealtimeCodes();
+    startRealtimeLogs();
 
     console.log(
       '🔥 Realtime Admin Started'
@@ -3402,7 +3486,14 @@ function startRealtimeUsers(){
           pro++;
         }
 
-        if(data.online){
+        const isOnline =
+
+          Date.now() -
+          (data.lastPing || 0)
+        
+          < 30000;
+        
+        if(isOnline){
           online++;
         }
 
@@ -3445,7 +3536,7 @@ function startRealtimeUsers(){
 
               Status:
               ${
-                data.online
+                isOnline
                 ? '🟢 ONLINE'
                 : '⚫ OFFLINE'
               }
@@ -3491,6 +3582,95 @@ function startRealtimeUsers(){
       ).innerHTML = generations;
 
       usersList.innerHTML = html;
+
+    }
+
+  );
+
+}
+
+/* =========================================
+   SAVE LOG
+========================================= */
+
+async function saveLog(action){
+
+  if(!window.currentUID)
+    return;
+
+  const logId =
+    Date.now().toString();
+
+  await window.firebaseTools.setDoc(
+
+    window.firebaseTools.doc(
+      window.db,
+      'logs',
+      logId
+    ),
+
+    {
+
+      uid:window.currentUID,
+
+      action,
+
+      createdAt:Date.now()
+
+    }
+
+  );
+
+}
+
+/* =========================================
+   REALTIME LOGS
+========================================= */
+
+function startRealtimeLogs(){
+
+  const logsRef =
+
+    window.firebaseTools.collection(
+      window.db,
+      'logs'
+    );
+
+  window.firebaseTools.onSnapshot(
+
+    logsRef,
+
+    snapshot => {
+
+      let html = '';
+
+      snapshot.forEach(docSnap => {
+
+        const data =
+          docSnap.data();
+
+        html += `
+
+          <div class="code-item">
+
+            <b>
+              ${data.action}
+            </b>
+
+            <br>
+
+            User:
+            ${data.uid.slice(0,10)}...
+
+          </div>
+
+        `;
+
+      });
+
+      document.getElementById(
+        'activityLogs'
+      ).innerHTML = html;
 
     }
 
