@@ -1247,7 +1247,12 @@ import {
   getDoc,
   updateDoc,
   collection,
-  addDoc
+  addDoc,
+  getDocs,
+  query,
+  where,
+  serverTimestamp,
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* CONFIG */
@@ -2235,24 +2240,6 @@ bisa kamu tambah sendiri nanti
    UNIQUE PRO CODES
 ========================================= */
 
-const PRO_CODES = {
-
-  'DTS-7DAYS-5521':{
-    type:'PRO',
-    days:7
-  },
-
-  'DTS-30DAYS-8271':{
-    type:'PRO',
-    days:30
-  },
-
-  'DTS-LIFETIME-1122':{
-    type:'PRO',
-    days:'LIFETIME'
-  }
-
-};
 
 const redeemBtn =
   document.getElementById('redeemBtn');
@@ -2260,78 +2247,126 @@ const redeemBtn =
 const redeemInput =
   document.getElementById('redeemInput');
 
-/* REDEEM */
+/* =========================================
+   FIREBASE REDEEM SYSTEM
+========================================= */
 
-redeemBtn.addEventListener('click', () => {
+redeemBtn.addEventListener(
+  'click',
+  async () => {
 
   const code =
     redeemInput.value.trim();
 
-  if(PRO_CODES[code]){
+  if(!code){
 
-    const selectedCode =
-      PRO_CODES[code];
+    showToast(
+      '❌ Enter redeem code'
+    );
 
-    let expireDate = null;
-    
-    /* LIFETIME */
-    
-    if(selectedCode.days === 'LIFETIME'){
-    
-      expireDate = 'LIFETIME';
-    
-    } else {
-    
+    return;
+
+  }
+
+  try{
+
+    const codeRef =
+      doc(db, 'redeemCodes', code);
+
+    const codeSnap =
+      await getDoc(codeRef);
+
+    /* NOT FOUND */
+
+    if(!codeSnap.exists()){
+
+      showToast(
+        '❌ Invalid code'
+      );
+
+      return;
+
+    }
+
+    const codeData =
+      codeSnap.data();
+
+    /* ALREADY USED */
+
+    if(codeData.used){
+
+      showToast(
+        '⚠️ Code already used'
+      );
+
+      return;
+
+    }
+
+    /* CALCULATE EXPIRE */
+
+    let expireDate =
+      'LIFETIME';
+
+    if(codeData.days !== 'LIFETIME'){
+
       const future =
         new Date();
-    
+
       future.setDate(
         future.getDate() +
-        selectedCode.days
+        Number(codeData.days)
       );
-    
+
       expireDate =
         future.toISOString()
           .split('T')[0];
-    
+
     }
 
     /* SAVE USER */
-    
+
     userData = {
-    
+
       plan:'PRO',
       expires:expireDate
-    
+
     };
-    
+
     localStorage.setItem(
       'nexoraUser',
       JSON.stringify(userData)
     );
-    
-    /* UPDATE */
-    
+
+    /* MARK USED */
+
+    await updateDoc(codeRef, {
+
+      used:true,
+      usedAt:serverTimestamp()
+
+    });
+
+    /* UI */
+
     updatePlanBadge();
-    
-    /* CLOSE */
-    
+
     proModal.classList.remove('show');
-    
-    /* SUCCESS */
-    
+
+    redeemInput.value = '';
+
     showToast(
       '✨ Nexora Pro Activated'
     );
-    
-    redeemInput.value = '';
-    
+
     launchConfetti();
 
-  } else {
+  } catch(err){
+
+    console.error(err);
 
     showToast(
-      '❌ Invalid Pro Code'
+      '❌ Redeem failed'
     );
 
   }
