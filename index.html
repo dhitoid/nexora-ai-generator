@@ -1713,59 +1713,129 @@ onAuthStateChanged(auth, async user => {
 
   if(!user) return;
 
-  const uid = user.uid;
+  try{
 
-  window.currentUID = uid;
+    const uid = user.uid;
 
-  const userRef =
-    doc(db, 'users', uid);
+    window.currentUID = uid;
 
-  const userSnap =
-    await getDoc(userRef);
+    const userRef =
 
-  /* NEW USER */
+      doc(
+        db,
+        'users',
+        uid
+      );
 
-  if(!userSnap.exists()){
+    /* ALWAYS SAVE USER */
 
-    await setDoc(userRef, {
+    await setDoc(
 
-      uid,
+      userRef,
 
-      plan:'FREE',
+      {
 
-      expires:null,
+        uid:uid,
 
-      generations:0,
+        plan:
+          userData?.plan || 'FREE',
 
-      online:true,
+        expires:
+          userData?.expires || null,
 
-      createdAt:
-        serverTimestamp(),
+        generations:
+          usageData?.count || 0,
 
-      lastActive:
-        serverTimestamp()
+        online:true,
 
-    });
+        lastActive:
+          serverTimestamp(),
+
+        createdAt:
+          serverTimestamp()
+
+      },
+
+      {
+
+        merge:true
+
+      }
+
+    );
+
+    console.log(
+      '👤 User Synced:',
+      uid
+    );
+
+    window.firebaseReady = true;
+
+  } catch(err){
+
+    console.error(
+      'User Sync Error:',
+      err
+    );
 
   }
 
-  /* UPDATE ONLINE */
-
-  await updateDoc(userRef, {
-
-    online:true,
-
-    lastActive:
-      serverTimestamp()
-
-  });
-
-  console.log(
-    '👤 User Synced'
-  );
-  window.firebaseReady = true;
-
 });
+
+/* =========================================
+   USER ONLINE STATUS
+========================================= */
+
+window.addEventListener(
+
+  'beforeunload',
+
+  async () => {
+
+    if(!window.currentUID)
+      return;
+
+    try{
+
+      const userRef =
+
+        window.firebaseTools.doc(
+          window.db,
+          'users',
+          window.currentUID
+        );
+
+      await window.firebaseTools.setDoc(
+
+        userRef,
+
+        {
+
+          online:false,
+
+          lastActive:
+            window.firebaseTools
+              .serverTimestamp()
+
+        },
+
+        {
+
+          merge:true
+
+        }
+
+      );
+
+    } catch(err){
+
+      console.error(err);
+
+    }
+
+  }
+
+);
 
 </script>
 
