@@ -1097,6 +1097,35 @@ textarea{
 
 }
 
+.show-more-btn{
+
+  width:100%;
+  border:none;
+  margin-top:14px;
+  padding:14px;
+  border-radius:16px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #7b61ff,
+      #00c6ff
+    );
+
+  color:white;
+  font-weight:700;
+  cursor:pointer;
+
+}
+
+.uid-mini{
+
+  opacity:.6;
+  font-size:12px;
+  margin-top:4px;
+
+}
+
 /* MOBILE */
 
 @media(max-width:768px){
@@ -3296,7 +3325,52 @@ document
    REALTIME REDEEM CODES
 ========================================= */
 
+let showAllCodes = false;
+
+function toggleCodes(){
+
+  showAllCodes =
+    !showAllCodes;
+
+  startRealtimeCodes();
+
+}
+
+function deleteCode(code){
+
+  const confirmDelete =
+    confirm(
+      `Delete ${code} ?`
+    );
+
+  if(!confirmDelete)
+    return;
+
+  window.firebaseTools.deleteDoc(
+
+    window.firebaseTools.doc(
+      window.db,
+      'redeemCodes',
+      code
+    )
+
+  );
+
+  showToast(
+    '🗑 Code Deleted'
+  );
+
+}
+
 function startRealtimeCodes(){
+
+  const codesList =
+    document.getElementById(
+      'codesList'
+    );
+
+  if(!codesList)
+    return;
 
   const codesRef =
 
@@ -3313,10 +3387,53 @@ function startRealtimeCodes(){
 
       let html = '';
 
+      let total = 0;
+      let used = 0;
+      let active = 0;
+
+      const allCodes = [];
+
       snapshot.forEach(docSnap => {
 
         const data =
           docSnap.data();
+
+        total++;
+
+        if(data.used){
+          used++;
+        } else {
+          active++;
+        }
+
+        allCodes.push({
+
+          id:docSnap.id,
+          data:data
+
+        });
+
+      });
+
+      /* NEWEST FIRST */
+
+      allCodes.reverse();
+
+      /* LIMIT */
+
+      const visibleCodes =
+
+        showAllCodes
+        ? allCodes
+        : allCodes.slice(0, 5);
+
+      visibleCodes.forEach(item => {
+
+        const code =
+          item.id;
+
+        const data =
+          item.data;
 
         html += `
 
@@ -3324,7 +3441,16 @@ function startRealtimeCodes(){
 
             <div class="code-top">
 
-              <b>${docSnap.id}</b>
+              <div>
+
+                <b>${code}</b>
+
+                <div class="uid-mini">
+                  Duration:
+                  ${data.days}
+                </div>
+
+              </div>
 
               <span class="
                 ${
@@ -3346,11 +3472,6 @@ function startRealtimeCodes(){
 
             <div class="code-info">
 
-              Duration:
-              ${data.days}
-
-              <br>
-
               Created:
               ${
                 data.createdAt
@@ -3360,15 +3481,71 @@ function startRealtimeCodes(){
 
             </div>
 
+            <div class="user-actions">
+
+              <button
+                onclick="
+                  deleteCode(
+                    '${code}'
+                  )
+                "
+              >
+                Delete
+              </button>
+
+            </div>
+
           </div>
 
         `;
 
       });
 
-      codesList.innerHTML =
+      codesList.innerHTML = `
 
-        html || 'No Codes';
+        <div class="analytics-grid">
+
+          <div class="analytics-card">
+            <h3>${total}</h3>
+            <p>Total</p>
+          </div>
+
+          <div class="analytics-card">
+            <h3>${active}</h3>
+            <p>Active</p>
+          </div>
+
+          <div class="analytics-card">
+            <h3>${used}</h3>
+            <p>Used</p>
+          </div>
+
+        </div>
+
+        ${html || 'No Codes'}
+
+        ${
+          total > 5
+          ? `
+
+            <button
+              class="show-more-btn"
+              onclick="toggleCodes()"
+            >
+
+              ${
+                showAllCodes
+                ? 'Show Less'
+                : 'Show More'
+              }
+
+            </button>
+
+          `
+          : ''
+        }
+
+      `;
 
     }
 
@@ -3379,8 +3556,6 @@ function startRealtimeCodes(){
 /* =========================================
    START REALTIME
 ========================================= */
-
-/* START REALTIME */
 
 const realtimeInterval =
   setInterval(() => {
