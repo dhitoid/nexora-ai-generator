@@ -1533,7 +1533,7 @@ import {
   setDoc,
   deleteDoc,
   getDocs,
-  collection
+  collection,
   onSnapshot
 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -1601,7 +1601,7 @@ window.firebaseTools = {
   setDoc,
   deleteDoc,
   getDocs,
-  collection
+  collection,
   
   onSnapshot
 
@@ -1667,6 +1667,7 @@ onAuthStateChanged(auth, async user => {
   console.log(
     '👤 User Synced'
   );
+  window.firebaseReady = true;
 
 });
 
