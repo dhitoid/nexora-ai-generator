@@ -1077,40 +1077,6 @@ textarea{
 
 }
 
-.admin-search{
-
-  width:100%;
-  padding:16px;
-  border:none;
-  outline:none;
-
-  border-radius:18px;
-
-  margin-bottom:16px;
-
-  background:
-    rgba(255,255,255,.06);
-
-  color:white;
-  font-size:15px;
-
-  backdrop-filter:blur(10px);
-
-}
-
-.online-dot{
-
-  color:#00ff99;
-  font-weight:700;
-
-}
-
-.offline-dot{
-
-  color:#999;
-
-}
-
 /* MOBILE */
 
 @media(max-width:768px){
@@ -1673,13 +1639,6 @@ textarea{
       <h3>
         Users Database
       </h3>
-      
-      <input
-        id="searchUser"
-        type="text"
-        placeholder="Search UID / Country / IP..."
-        class="admin-search"
-      />
 
       <div id="usersList"></div>
 
@@ -1786,6 +1745,8 @@ signInAnonymously(auth)
 
 window.db = db;
 
+window.firebaseReady = true;
+
 window.firebaseTools = {
 
   doc,
@@ -1802,7 +1763,7 @@ window.firebaseTools = {
 
 };
 
-window.firebaseReady = false;
+window.firebaseReady = true;
 
 /* =========================================
    USER DATABASE SYSTEM
@@ -1826,63 +1787,7 @@ onAuthStateChanged(auth, async user => {
         uid
       );
 
-    /* SAFE LOCAL DATA */
-
-    const localUser =
-
-      JSON.parse(
-        localStorage.getItem(
-          'nexoraUser'
-        )
-      ) || {
-
-        plan:'FREE',
-        expires:null
-
-      };
-
-    const localUsage =
-
-      JSON.parse(
-        localStorage.getItem(
-          'nexoraUsage'
-        )
-      ) || {
-
-        count:0
-
-      };
-
-    /* GET IP DATA */
-
-    let ipData = {
-
-      ip:'Unknown',
-      country_name:'Unknown',
-      city:'Unknown',
-      timezone:'Unknown'
-
-    };
-
-    try{
-
-      const response = await fetch(
-        'https://ipapi.co/json/'
-      );
-
-      ipData =
-        await response.json();
-
-    } catch(err){
-
-      console.error(
-        'IP Detect Error:',
-        err
-      );
-
-    }
-
-    /* SAVE USER */
+    /* ALWAYS SAVE USER */
 
     await setDoc(
 
@@ -1893,37 +1798,15 @@ onAuthStateChanged(auth, async user => {
         uid:uid,
 
         plan:
-          localUser.plan || 'FREE',
+          userData?.plan || 'FREE',
 
         expires:
-          localUser.expires || null,
+          userData?.expires || null,
 
         generations:
-          localUsage.count || 0,
+          usageData?.count || 0,
 
         online:true,
-
-        device:
-          navigator.userAgent,
-
-        browser:
-          navigator.platform,
-
-        ip:
-          ipData.ip || 'Unknown',
-
-        country:
-          ipData.country_name || 'Unknown',
-
-        city:
-          ipData.city || 'Unknown',
-
-        timezone:
-          ipData.timezone || 'Unknown',
-
-        lastSeen:
-          new Date()
-            .toLocaleString(),
 
         lastActive:
           serverTimestamp(),
@@ -2017,30 +1900,6 @@ window.addEventListener(
 </script>
 
 <script>
-
-/* =========================================
-   START REALTIME
-========================================= */
-
-const realtimeInterval =
-  setInterval(() => {
-
-    if(window.firebaseReady){
-
-      clearInterval(
-        realtimeInterval
-      );
-
-      startRealtimeUsers();
-      startRealtimeCodes();
-
-      console.log(
-        '🔥 Realtime Started'
-      );
-
-    }
-
-  }, 500);
 
 /* =========================================
    NEXORA SMART AI ENGINE
@@ -3550,12 +3409,6 @@ function startRealtimeCodes(){
       window.db,
       'redeemCodes'
     );
-    
-    if(usersListener){
-  usersListener();
-}
-
-usersListener =
 
   window.firebaseTools.onSnapshot(
 
@@ -3732,6 +3585,30 @@ usersListener =
 }
 
 /* =========================================
+   START REALTIME
+========================================= */
+
+const realtimeInterval =
+  setInterval(() => {
+
+  if(window.firebaseReady){
+
+    clearInterval(
+      realtimeInterval
+    );
+
+    startRealtimeUsers();
+    startRealtimeCodes();
+
+    console.log(
+      '🔥 Realtime Started'
+    );
+
+  }
+
+}, 500);
+
+/* =========================================
    ONLINE STATUS
 ========================================= */
 
@@ -3794,6 +3671,21 @@ const firebaseInterval =
 }, 300);
 
 /* =========================================
+   REALTIME USERS DATABASE
+========================================= */
+
+let showAllUsers = false;
+
+function toggleUsers(){
+
+  showAllUsers =
+    !showAllUsers;
+
+  startRealtimeUsers();
+
+}
+
+/* =========================================
    BAN USER
 ========================================= */
 
@@ -3801,20 +3693,28 @@ async function banUser(uid){
 
   try{
 
-    await window.firebaseTools.setDoc(
+    const userRef =
 
       window.firebaseTools.doc(
         window.db,
         'users',
         uid
-      ),
+      );
+
+    await window.firebaseTools.setDoc(
+
+      userRef,
 
       {
+
         banned:true
+
       },
 
       {
+
         merge:true
+
       }
 
     );
@@ -3827,23 +3727,11 @@ async function banUser(uid){
 
     console.error(err);
 
+    showToast(
+      '❌ Failed Ban'
+    );
+
   }
-
-}
-
-/* =========================================
-   SHOW MORE SYSTEM
-========================================= */
-
-let showAllUsers = false;
-let usersListener = null;
-
-function toggleUsers(){
-
-  showAllUsers =
-    !showAllUsers;
-
-  startRealtimeUsers();
 
 }
 
@@ -3854,6 +3742,7 @@ function toggleUsers(){
 function startRealtimeUsers(){
 
   const usersList =
+
     document.getElementById(
       'usersList'
     );
@@ -3869,13 +3758,7 @@ function startRealtimeUsers(){
       'users'
     );
 
-      if(usersListener){
-      usersListener();
-    }
-    
-    usersListener =
-    
-    window.firebaseTools.onSnapshot(
+  window.firebaseTools.onSnapshot(
 
     usersRef,
 
@@ -3890,45 +3773,10 @@ function startRealtimeUsers(){
 
       const allUsers = [];
 
-      /* SEARCH VALUE */
-
-      const search =
-
-        document
-          .getElementById(
-            'searchUser'
-          )
-          ?.value
-          ?.toLowerCase() || '';
-
-      /* GET USERS */
-
       snapshot.forEach(docSnap => {
 
         const data =
           docSnap.data();
-
-        const uid =
-          data.uid || docSnap.id;
-
-        /* SEARCH TEXT */
-
-        const searchText = `
-
-          ${uid}
-          ${data.country || ''}
-          ${data.city || ''}
-          ${data.ip || ''}
-
-        `.toLowerCase();
-
-        /* FILTER */
-
-        if(
-          !searchText.includes(search)
-        ){
-          return;
-        }
 
         allUsers.push({
 
@@ -3943,15 +3791,13 @@ function startRealtimeUsers(){
 
       allUsers.reverse();
 
-      /* LIMIT */
+      /* SHOW LIMIT */
 
       const visibleUsers =
 
         showAllUsers
         ? allUsers
-        : allUsers.slice(0,5);
-
-      /* RENDER */
+        : allUsers.slice(0, 5);
 
       visibleUsers.forEach(item => {
 
@@ -3976,132 +3822,105 @@ function startRealtimeUsers(){
 
         html += `
 
-<div class="user-item">
+          <div class="user-item">
 
-  <div class="user-top">
+            <div class="user-top">
 
-    <div>
+              <div>
 
-      <b>
-        ${uid.slice(0,12)}...
-      </b>
+                <b>
+                  ${uid.slice(0,12)}...
+                </b>
 
-      <div class="uid-mini">
-        ${uid}
-      </div>
+                <div class="uid-mini">
 
-    </div>
+                  ${uid}
 
-    <span class="
-      ${
-        data.plan === 'PRO'
-        ? 'pro-badge'
-        : 'free-badge'
-      }
-    ">
+                </div>
 
-      ${data.plan || 'FREE'}
+              </div>
 
-    </span>
+              <span class="
+                ${
+                  data.plan === 'PRO'
+                  ? 'pro-badge'
+                  : 'free-badge'
+                }
+              ">
 
-  </div>
+                ${data.plan || 'FREE'}
 
-  <div class="user-info">
+              </span>
 
-    <div>
-      🌍 Country:
-      ${data.country || 'Unknown'}
-    </div>
+            </div>
 
-    <div>
-      🏙 City:
-      ${data.city || 'Unknown'}
-    </div>
+            <div class="user-info">
 
-    <div>
-      📡 IP:
-      ${data.ip || 'Unknown'}
-    </div>
+              <div>
+                📅 Exp:
+                ${data.expires || 'NONE'}
+              </div>
 
-    <div>
-      💻 Device:
-      ${
-        data.device
-        ? data.device.slice(0,50)
-        : 'Unknown'
-      }
-    </div>
+              <div>
+                ⚡ Generations:
+                ${data.generations || 0}
+              </div>
 
-    <div>
-      ⚡ Generations:
-      ${data.generations || 0}
-    </div>
+              <div>
+                🌐 Device:
+                ${
+                  data.device
+                  ? data.device.slice(0,35)
+                  : 'Unknown'
+                }
+              </div>
 
-    <div>
-      📅 Exp:
-      ${data.expires || 'NONE'}
-    </div>
+              <div>
+                🕒 Last Active:
+                ${data.lastSeen || 'Now'}
+              </div>
 
-    <div>
-      🕒 Last Active:
-      ${data.lastSeen || 'Now'}
-    </div>
+              <div>
+                ${
+                  data.online
+                  ? '🟢 ONLINE'
+                  : '⚫ OFFLINE'
+                }
+              </div>
 
-    <div class="
-      ${
-        data.online
-        ? 'online-dot'
-        : 'offline-dot'
-      }
-    ">
+            </div>
 
-      ${
-        data.online
-        ? '🟢 ONLINE'
-        : '⚫ OFFLINE'
-      }
+            <div class="user-actions">
 
-    </div>
+              <button
+                onclick="
+                  removeProUser(
+                    '${uid}'
+                  )
+                "
+              >
+                Remove PRO
+              </button>
 
-  </div>
+              <button
+                onclick="
+                  banUser(
+                    '${uid}'
+                  )
+                "
+              >
+                Ban
+              </button>
 
-  <div class="user-actions">
+            </div>
 
-    <button
-      onclick="
-  removeProUser(
-    '${item.id}'
-  )
-"
-    >
-      Remove PRO
-    </button>
-
-    <button
-      onclick="
-  banUser(
-    '${item.id}'
-  )
-"
-    >
-      Ban
-    </button>
-
-  </div>
-
-</div>
+          </div>
 
         `;
 
       });
 
       /* REAL ANALYTICS */
-
-      total = snapshot.size;
-
-      pro = 0;
-      online = 0;
-      generations = 0;
 
       snapshot.forEach(docSnap => {
 
@@ -4121,7 +3940,7 @@ function startRealtimeUsers(){
 
       });
 
-      /* UPDATE UI */
+      total = snapshot.size;
 
       document.getElementById(
         'totalUsers'
@@ -4141,10 +3960,10 @@ function startRealtimeUsers(){
 
       usersList.innerHTML = `
 
-        ${html || 'No Users Found'}
+        ${html || 'No Users'}
 
         ${
-          allUsers.length > 5
+          total > 5
           ? `
 
             <button
@@ -4174,32 +3993,6 @@ function startRealtimeUsers(){
         'Realtime Users Error:',
         err
       );
-
-    }
-
-  );
-
-}
-
-/* =========================================
-   SEARCH REALTIME
-========================================= */
-
-const searchUserInput =
-
-  document.getElementById(
-    'searchUser'
-  );
-
-if(searchUserInput){
-
-  searchUserInput.addEventListener(
-
-    'input',
-
-    () => {
-
-      startRealtimeUsers();
 
     }
 
