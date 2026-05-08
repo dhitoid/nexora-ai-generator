@@ -3550,6 +3550,12 @@ function startRealtimeCodes(){
       window.db,
       'redeemCodes'
     );
+    
+    if(usersListener){
+  usersListener();
+}
+
+usersListener =
 
   window.firebaseTools.onSnapshot(
 
@@ -3795,28 +3801,20 @@ async function banUser(uid){
 
   try{
 
-    const userRef =
+    await window.firebaseTools.setDoc(
 
       window.firebaseTools.doc(
         window.db,
         'users',
         uid
-      );
-
-    await window.firebaseTools.setDoc(
-
-      userRef,
+      ),
 
       {
-
         banned:true
-
       },
 
       {
-
         merge:true
-
       }
 
     );
@@ -3828,10 +3826,6 @@ async function banUser(uid){
   } catch(err){
 
     console.error(err);
-
-    showToast(
-      '❌ Failed Ban'
-    );
 
   }
 
