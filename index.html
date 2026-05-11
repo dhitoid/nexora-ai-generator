@@ -19,9 +19,16 @@
 
 body{
   font-family:'Plus Jakarta Sans',sans-serif;
-  background:#0F1117;
   color:white;
   overflow-x:hidden;
+  background:
+radial-gradient(circle at top left,
+rgba(123,97,255,0.15),
+transparent 30%),
+radial-gradient(circle at bottom right,
+rgba(0,194,255,0.12),
+transparent 30%),
+#0F1117;
 }
 
 /* BACKGROUND */
@@ -31,7 +38,6 @@ body{
   border-radius:50%;
   filter:blur(120px);
   z-index:-1;
-  
 }
 
 .orb1{
@@ -1158,86 +1164,28 @@ textarea{
 
 }
 
-/* =========================================
-   GPT THINKING
-========================================= */
-
-.ai-thinking{
-  margin-bottom:18px;
-  background:
-    rgba(255,255,255,0.04);
-  border:
-    1px solid rgba(255,255,255,0.06);
-  border-radius:20px;
-  padding:18px;
-  overflow:hidden;
-  transition:0.3s;
-}
-
-.hidden{
-  display:none;
-}
-
-.thinking-top{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  margin-bottom:14px;
-  font-weight:600;
-  color:#DCE3F5;
-}
-
-.thinking-dot{
-  width:10px;
-  height:10px;
-  border-radius:50%;
-  background:#00C2FF;
-  animation:pulse 1s infinite;
-}
-
-@keyframes pulse{
-  0%{
-    transform:scale(1);
-    opacity:1;
-  }
-  50%{
-    transform:scale(1.5);
-    opacity:.5;
-  }
-  100%{
-    transform:scale(1);
-    opacity:1;
-  }
-}
-
-.thinking-steps{
-  color:#AEB6CB;
-  line-height:1.9;
-  font-size:14px;
-  white-space:pre-line;
-}
-
-.reason-line{
-  opacity:0;
-  transform:translateY(10px);
-  animation:fadeReason .4s ease forwards;
-
-}
-
 .tab-content{
-  max-height:500px;
-  overflow-y:auto;
   scroll-behavior:smooth;
-
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.06),
+      rgba(255,255,255,0.03)
+    );
+  box-shadow:
+    inset 0 0 30px rgba(255,255,255,0.03);
 }
 
-@keyframes fadeReason{
+/* TYPING CURSOR */
+.typing-cursor::after{
+  content:'|';
+  animation:blink 1s infinite;
+}
 
-  to{
-    opacity:1;
-    transform:translateY(0);
+@keyframes blink{
+  50%{
+    opacity:0;
   }
-
 }
 
 /* MOBILE */
@@ -1255,379 +1203,6 @@ textarea{
   .hero-buttons{
     flex-direction:column;
   }
-
-}
-
-.tab-content{
-
-  background:
-    linear-gradient(
-      180deg,
-      rgba(255,255,255,0.04),
-      rgba(255,255,255,0.02)
-    );
-
-  backdrop-filter:blur(20px);
-
-}
-
-/* =========================================
-   AI CHAT LAYOUT
-========================================= */
-
-.ai-layout{
-
-  display:grid;
-
-  grid-template-columns:
-    280px 1fr;
-
-  gap:20px;
-
-  margin-top:30px;
-
-}
-
-/* SIDEBAR */
-
-.ai-sidebar{
-
-  background:
-    rgba(255,255,255,0.03);
-
-  border:
-    1px solid rgba(255,255,255,0.05);
-
-  border-radius:24px;
-
-  padding:18px;
-
-  height:650px;
-
-  overflow-y:auto;
-
-  backdrop-filter:blur(20px);
-
-}
-
-.sidebar-top{
-
-  margin-bottom:20px;
-
-}
-
-.sidebar-top h3{
-
-  margin-bottom:8px;
-
-}
-
-.sidebar-top p{
-
-  color:#9FA4B5;
-  font-size:14px;
-  line-height:1.7;
-
-}
-
-/* MEMORY */
-
-.memory-item{
-
-  padding:14px;
-
-  border-radius:18px;
-
-  background:
-    rgba(255,255,255,0.04);
-
-  margin-bottom:10px;
-
-  cursor:pointer;
-
-  transition:0.3s;
-
-  border:
-    1px solid rgba(255,255,255,0.05);
-
-  overflow:hidden;
-
-  position:relative;
-
-}
-
-.memory-item:hover{
-
-  transform:translateY(-2px);
-
-  border-color:
-    rgba(123,97,255,0.5);
-
-}
-
-.memory-title{
-
-  font-size:14px;
-  font-weight:600;
-
-  margin-bottom:6px;
-
-}
-
-.memory-desc{
-
-  font-size:12px;
-  color:#9FA4B5;
-
-  line-height:1.6;
-
-}
-
-/* CHAT */
-
-.ai-chat-area{
-
-  background:
-    rgba(255,255,255,0.04);
-
-  border:
-    1px solid rgba(255,255,255,0.06);
-
-  border-radius:24px;
-
-  overflow:hidden;
-
-  display:flex;
-  flex-direction:column;
-
-}
-
-.chat-container{
-
-  height:650px;
-
-  overflow-y:auto;
-
-  padding:24px;
-
-  display:flex;
-
-  flex-direction:column;
-
-  gap:18px;
-
-  scroll-behavior:smooth;
-
-}
-
-/* MESSAGE */
-
-.ai-message,
-.user-message{
-
-  max-width:85%;
-
-  padding:18px;
-
-  border-radius:22px;
-
-  line-height:1.8;
-
-  animation:messageUp .3s ease;
-
-}
-
-@keyframes messageUp{
-
-  from{
-    opacity:0;
-    transform:translateY(10px);
-  }
-
-  to{
-    opacity:1;
-    transform:translateY(0);
-  }
-
-}
-
-.ai-message{
-
-  background:
-    rgba(255,255,255,0.05);
-
-  border:
-    1px solid rgba(255,255,255,0.06);
-
-  align-self:flex-start;
-
-}
-
-.user-message{
-
-  background:
-    linear-gradient(
-      135deg,
-      #7B61FF,
-      #00C2FF
-    );
-
-  align-self:flex-end;
-
-}
-
-/* MESSAGE TOP */
-
-.message-top{
-
-  font-size:13px;
-
-  opacity:.7;
-
-  margin-bottom:10px;
-
-}
-
-/* ACTIONS */
-
-.chat-actions{
-
-  display:flex;
-
-  gap:12px;
-
-  padding:20px;
-
-  border-top:
-    1px solid rgba(255,255,255,0.06);
-
-}
-
-.chat-action-btn{
-
-  flex:1;
-
-  padding:14px;
-
-  border:none;
-
-  border-radius:16px;
-
-  background:
-    rgba(255,255,255,0.06);
-
-  color:white;
-
-  cursor:pointer;
-
-  transition:0.3s;
-
-}
-
-.chat-action-btn:hover{
-
-  transform:translateY(-2px);
-
-}
-
-.chat-action-btn.danger{
-
-  background:
-    rgba(255,0,80,0.15);
-
-}
-
-/* MOBILE */
-
-@media(max-width:900px){
-
-  .ai-layout{
-
-    grid-template-columns:1fr;
-
-  }
-
-  .ai-sidebar{
-
-    height:auto;
-
-  }
-
-  .chat-container{
-
-    height:500px;
-
-  }
-
-}
-
-.memory-mini-top{
-
-  display:flex;
-
-  align-items:center;
-
-  gap:10px;
-
-  margin-bottom:8px;
-
-  font-weight:600;
-
-  font-size:14px;
-
-}
-
-.memory-dot{
-
-  width:8px;
-  height:8px;
-
-  border-radius:50%;
-
-  background:
-    linear-gradient(
-      135deg,
-      #7B61FF,
-      #00C2FF
-    );
-
-}
-
-.memory-mini-desc{
-
-  font-size:12px;
-
-  color:#98A2B3;
-
-  overflow:hidden;
-
-  white-space:nowrap;
-
-  text-overflow:ellipsis;
-
-}
-
-.memory-search{
-
-  width:100%;
-
-  margin:14px 0 18px;
-
-  padding:14px;
-
-  border:none;
-
-  border-radius:16px;
-
-  background:
-    rgba(255,255,255,0.05);
-
-  border:
-    1px solid rgba(255,255,255,0.05);
-
-  color:white;
-
-  outline:none;
 
 }
 
@@ -1768,127 +1343,46 @@ textarea{
       ✨ Generate Content
     </button>
 
-<div class="ai-layout">
+    <div class="output-box">
 
-  <!-- SIDEBAR -->
+  <div class="output-top">
 
-  <aside class="ai-sidebar">
+    <h3>Generated Content</h3>
 
-    <div class="sidebar-top">
-      
-      <input
-  id="memorySearch"
-  class="memory-search"
-  placeholder="Search memory..."
->
-
-      <h3>AI Memory</h3>
-
-      <p>
-        Nexora remembers
-        your recent prompts
-      </p>
-
-    </div>
-
-    <div id="memoryList" class="memory-list">
-
-      <div class="memory-empty">
-        No history yet
-      </div>
-
-    </div>
-
-  </aside>
-
-  <!-- CHAT AREA -->
-
-  <div class="ai-chat-area">
-    
-    <!-- AI THINKING -->
-
-<div id="aiThinking" class="ai-thinking hidden">
-
-  <div class="thinking-header">
-    <span class="thinking-dot"></span>
-    Nexora AI Reasoning
-  </div>
-
-  <div id="thinkingSteps" class="thinking-steps">
+    <button id="copyBtn">
+      Copy
+    </button>
 
   </div>
 
-</div>
+  <!-- TABS -->
 
-    <!-- CHAT -->
-    
-    <div class="ai-tabs">
+  <div class="tabs">
 
-  <button class="ai-tab active">
-    Full Result
-  </button>
+    <button class="tab-btn active" data-tab="instagram">
+      Instagram
+    </button>
 
-  <button class="ai-tab">
-    Instagram
-  </button>
+    <button class="tab-btn" data-tab="tiktok">
+      TikTok
+    </button>
 
-  <button class="ai-tab">
-    TikTok
-  </button>
+    <button class="tab-btn" data-tab="meta">
+      Meta Ads
+    </button>
 
-  <button class="ai-tab">
-    Meta Ads
-  </button>
-
-  <button class="ai-tab">
-    WhatsApp
-  </button>
-
-</div>
-
-    <div id="chatContainer" class="chat-container">
-
-      <div class="ai-message">
-
-        <div class="message-top">
-          <span>✨ Nexora AI</span>
-        </div>
-
-        <div class="message-content">
-
-          Welcome to Nexora AI.
-
-          Generate high-converting
-          property marketing content
-          instantly.
-
-        </div>
-
-      </div>
-
-    </div>
-
-    <!-- ACTIONS -->
-
-    <div class="chat-actions">
-
-      <button id="copyBtn" class="chat-action-btn">
-        Copy
-      </button>
-
-      <button id="regenBtn" class="chat-action-btn">
-        Regenerate
-      </button>
-
-      <button id="clearBtn" class="chat-action-btn danger">
-        Clear
-      </button>
-
-    </div>
+    <button class="tab-btn" data-tab="whatsapp">
+      WhatsApp
+    </button>
 
   </div>
 
-</div>
+  <!-- OUTPUT -->
+
+  <div id="tabContent" class="tab-content">
+    Your AI content will appear here...
+  </div>
+
 </div>
 
 </section>
@@ -2335,13 +1829,13 @@ onAuthStateChanged(auth, async user => {
         uid:uid,
 
         plan:
-          userData?.plan || 'FREE',
+          window.userData?.plan || 'FREE',
 
         expires:
           userData?.expires || null,
 
         generations:
-          usageData?.count || 0,
+          window.usageData?.count || 0,
 
         online:true,
 
@@ -2445,16 +1939,9 @@ window.addEventListener(
 const generateBtn = document.getElementById('generateBtn');
 const copyBtn = document.getElementById('copyBtn');
 const tabContent = document.getElementById('tabContent');
-const chatContainer =
-  document.getElementById('chatContainer');
 
-const memoryList =
-  document.getElementById('memoryList');
-const aiThinking =
-  document.getElementById('aiThinking');
-
-const thinkingSteps =
-  document.getElementById('thinkingSteps');
+const tabButtons =
+  document.querySelectorAll('.tab-btn');
 
 let generatedData = {
 
@@ -2464,6 +1951,8 @@ let generatedData = {
   whatsapp: ''
 
 };
+
+let currentTab = 'instagram';
 
 /* =========================================
    DATABASE
@@ -2476,18 +1965,7 @@ const hooks = [
   "Karyawan muda wajib tahu promo rumah ini 👀",
   "Baru launching! Rumah impian mulai {price}",
   "Bisa punya rumah tanpa ribet di {location}",
-  "Promo terbatas untuk unit terbaik minggu ini 🔥",
-  "Akhirnya ada rumah modern di {location} dengan cicilan ringan",
-  "Karyawan muda sekarang bisa punya rumah sendiri 🔥",
-  "Cluster premium dekat akses utama {location}",
-  "Bukan sekedar rumah, ini investasi masa depan 🚀",
-  "Harga rumah naik tiap tahun, tapi promo ini masih aktif 👀",
-  "Bayangin pulang kerja langsung ke rumah nyaman sendiri ✨",
-  "Rumah aesthetic dengan harga masih masuk akal di {location}",
-  "Banyak yang survey minggu ini karena promonya gila 🔥",
-  "Unit terbatas untuk promo {promo}",
-  "Cuma di {location}, rumah modern mulai {price}",
-  "Pasangan muda wajib cek rumah ini sebelum sold out"
+  "Promo terbatas untuk unit terbaik minggu ini 🔥"
 ];
 
 const ctas = [
@@ -2508,56 +1986,39 @@ const emotions = [
   "elegan"
 ];
 
+const powerWords = [
+  "super strategis",
+  "best seller",
+  "paling dicari",
+  "anti ribet",
+  "siap huni",
+  "future investment",
+  "akses premium",
+  "value tinggi"
+];
+
+const painPoints = [
+  "capek ngontrak tiap tahun",
+  "bingung cari rumah strategis",
+  "takut harga rumah terus naik",
+  "ingin punya rumah dekat tempat kerja",
+  "mau cicilan ringan"
+];
+
+const benefits = [
+  "akses dekat tol",
+  "dekat stasiun",
+  "lingkungan nyaman",
+  "cocok untuk keluarga muda",
+  "investasi jangka panjang",
+  "nilai properti terus naik"
+];
+
 const emojis = ["🔥","✨","😱","🏡","🚀","💯"];
 
 /* =========================================
    HELPERS
 ========================================= */
-
-function generateLongCaption(data){
-
-  const benefits = [
-
-    'akses strategis dekat pusat kota',
-    'lingkungan nyaman dan modern',
-    'cocok untuk investasi jangka panjang',
-    'desain rumah kekinian',
-    'akses mudah ke transportasi',
-    'dekat sekolah dan pusat kuliner',
-    'potensi kenaikan harga tinggi',
-    'suasana cluster lebih eksklusif'
-
-  ];
-
-  return `
-
-${random(emojis)} ${replaceTemplate(random(hooks), data)}
-
-Punya rumah nyaman di ${data.location}
-sekarang bukan cuma impian.
-
-Hunian ${random(emotions)} dengan
-${data.type} mulai ${data.price}.
-
-✨ Keunggulan:
-• ${random(benefits)}
-• ${random(benefits)}
-• ${random(benefits)}
-
-🎁 Promo:
-${data.promo}
-
-Cocok untuk:
-${data.market}
-
-${random(ctas)}
-
-📩 DM sekarang untuk pricelist
-dan jadwal survey lokasi minggu ini.
-
-`;
-
-}
 
 function random(arr){
 
@@ -2577,353 +2038,36 @@ function replaceTemplate(text, data){
 
 }
 
-function addUserMessage(data){
-
-  const div =
-    document.createElement('div');
-
-  div.className =
-    'user-message';
-
-  div.innerHTML = `
-
-    <div class="message-top">
-      You
-    </div>
-
-    <div class="message-content">
-
-      Generate property content
-      for ${data.location}
-
-      • ${data.type}
-      • ${data.price}
-      • ${data.promo}
-
-    </div>
-
-  `;
-
-  chatContainer.appendChild(div);
-
-  scrollChat();
-
-}
-
-async function addAIMessage(text){
-
-  const div =
-    document.createElement('div');
-
-  div.className =
-    'ai-message';
-
-  div.innerHTML = `
-
-<div class="message-top">
-  <span>✨ Nexora AI</span>
-
-  <div class="message-actions">
-
-    <button class="mini-action copy-msg">
-      Copy
-    </button>
-
-    <button class="mini-action regen-msg">
-      Retry
-    </button>
-
-  </div>
-</div>
-
-<div class="message-content"></div>
-
-`;
-
-  chatContainer.appendChild(div);
-
-  const content =
-    div.querySelector('.message-content');
-
- const chunks = text.match(/.{1,12}/g);
-for(const chunk of chunks)
-
-    content.innerHTML +=
-      word + ' ';
-
-    scrollChat();
-
-    await new Promise(r =>
-      setTimeout(
-        r,
-        20 + Math.random()*20
-      )
-    );
-
-  }
-
-}
-
-div.querySelector('.copy-msg')
-.addEventListener('click', () => {
-
-  navigator.clipboard.writeText(
-    text
-  );
-
-  showToast('✅ Copied');
-
-});
-
-div.querySelector('.regen-msg')
-.addEventListener('click', () => {
-
-  generateBtn.click();
-
-});
-
-function scrollChat(){
-
-  chatContainer.scrollTop =
-    chatContainer.scrollHeight;
-
-}
-
-function saveMemory(data){
-
-  const memories =
-
-    JSON.parse(
-      localStorage.getItem(
-        'nexoraMemory'
-      )
-    ) || [];
-
-  memories.unshift(data);
-
-  localStorage.setItem(
-
-    'nexoraMemory',
-
-    JSON.stringify(
-      memories.slice(0,10)
-    )
-
-  );
-
-  renderMemory();
-
-}
-
-function renderMemory(){
-
-  const memories =
-
-    JSON.parse(
-      localStorage.getItem(
-        'nexoraMemory'
-      )
-    ) || [];
-
-  if(!memories.length){
-
-    memoryList.innerHTML = `
-      <div class="memory-empty">
-        No history yet
-      </div>
-    `;
-
-    return;
-
-  }
-
-  memoryList.innerHTML = '';
-
-  memories.forEach(memory => {
-
-    const div =
-      document.createElement('div');
-
-    div.className =
-      'memory-item';
-
-div.innerHTML = `
-
-<div class="memory-card">
-
-  <div class="memory-card-top">
-
-    <div class="memory-left">
-
-      <div class="memory-dot"></div>
-
-      <div>
-
-        <div class="memory-title">
-          ${memory.location}
-        </div>
-
-        <div class="memory-sub">
-          ${memory.type}
-        </div>
-
-      </div>
-
-    </div>
-
-    <button class="memory-load">
-      Load
-    </button>
-
-  </div>
-
-  <div class="memory-tags">
-
-    <span>${memory.price}</span>
-    <span>${memory.tone}</span>
-
-  </div>
-
-</div>
-
-`;
-
-    div.addEventListener('click', () => {
-
-      locationInput.value =
-        memory.location;
-
-      type.value =
-        memory.type;
-
-      price.value =
-        memory.price;
-
-      promo.value =
-        memory.promo;
-
-      market.value =
-        memory.market;
-
-      tone.value =
-        memory.tone;
-
-      showToast(
-        '✨ Prompt restored'
-      );
-
-    });
-
-    memoryList.appendChild(div);
-
-  });
-
-}
-
-async function fakeGPTThinking(data){
-
-  aiThinking.classList.remove('hidden');
-
-  thinkingSteps.innerHTML = '';
-
-  const steps = [
-
-    `📍 Analyzing location potential in ${data.location}`,
-
-    `👥 Detecting target market: ${data.market}`,
-
-    `🧠 Generating emotional selling angle`,
-
-    `🔥 Optimizing high-converting hooks`,
-
-    `✨ Creating premium copywriting structure`,
-
-    `📈 Enhancing conversion probability`,
-
-    `🚀 Finalizing AI marketing output`
-
-  ];
-
-  for(const step of steps){
-
-    const div =
-      document.createElement('div');
-
-    div.className = 'reason-line';
-
-    div.innerHTML = step;
-
-    thinkingSteps.appendChild(div);
-
-    await new Promise(r =>
-      setTimeout(r, 700)
-    );
-
-  }
-
-}
-
-function addStreamingEffect(){
-
-  const randomWords = [
-
-    'Analyzing...',
-    'Optimizing...',
-    'Structuring...',
-    'Enhancing...',
-    'Generating...',
-    'Refining...'
-
-  ];
-
-  let i = 0;
-
-  return setInterval(() => {
-
-    generateBtn.innerHTML =
-      `✨ ${
-        randomWords[
-          i % randomWords.length
-        ]
-      }`;
-
-    i++;
-
-  }, 600);
-
-}
-
-async function streamResponse(text){
+async function typeWriter(text){
 
   tabContent.innerHTML = '';
 
-  tabContent.classList.add(
-    'typing-cursor'
-  );
+  let i = 0;
 
-  const chunks =
-    text.split(' ');
+  return new Promise(resolve => {
 
-  for(let i=0; i<chunks.length; i++){
+    const typing = setInterval(() => {
 
-    tabContent.innerHTML +=
-      chunks[i] + ' ';
+      tabContent.innerHTML += text.charAt(i);
 
-    tabContent.scrollTop =
-      tabContent.scrollHeight;
+      i++;
 
-    await new Promise(r =>
-      setTimeout(
-        r,
-        18 + Math.random()*25
-      )
-    );
+      /* AUTO SCROLL OUTPUT */
 
-  }
+      tabContent.scrollTop =
+        tabContent.scrollHeight;
 
-  tabContent.classList.remove(
-    'typing-cursor'
-  );
+      if(i >= text.length){
+
+        clearInterval(typing);
+
+        resolve();
+
+      }
+
+    }, 6);
+
+  });
 
 }
 
@@ -2932,14 +2076,11 @@ function loadingSteps(){
   return new Promise(resolve => {
 
     const steps = [
-
-  "🧠 AI analyzing property trends...",
-  "📊 Optimizing high-converting copy...",
-  "✨ Generating emotional hooks...",
-  "🚀 Building viral marketing content...",
-  "🔥 Finalizing premium AI result..."
-
-];
+      "🔍 Analyzing property market...",
+      "🧠 Creating viral hooks...",
+      "✨ Generating emotional CTA...",
+      "🚀 Optimizing conversion copy..."
+    ];
 
     let index = 0;
 
@@ -2965,6 +2106,31 @@ function loadingSteps(){
   });
 
 }
+
+/* =========================================
+   TAB SYSTEM
+========================================= */
+
+tabButtons.forEach(btn => {
+
+  btn.addEventListener('click', () => {
+
+    tabButtons.forEach(b =>
+      b.classList.remove('active')
+    );
+
+    btn.classList.add('active');
+
+    currentTab =
+      btn.dataset.tab;
+
+    typeWriter(
+      generatedData[currentTab]
+    );
+
+  });
+
+});
 
 /* =========================================
    GENERATOR
@@ -2999,22 +2165,11 @@ generateBtn.addEventListener('click', async () => {
       document.getElementById('tone').value
 
   };
-  
-  addUserMessage(data);
-  saveMemory(data);
 
   generateBtn.disabled = true;
-  const streamFX =
-  addStreamingEffect();
 
-  generateBtn.innerHTML = `
-
-<div class="btn-loader"></div>
-Nexora AI Thinking
-
-`;
-
-  await fakeGPTThinking(data);
+  generateBtn.innerHTML =
+    '🧠 Nexora AI analyzing market psychology...';
 
   await loadingSteps();
 
@@ -3061,75 +2216,119 @@ Nexora AI Thinking
 
   /* OUTPUT */
 
-const finalOutput = `
+const pain =
+  random(painPoints);
 
-# ✨ INSTAGRAM CAPTION
+const benefit =
+  random(benefits);
 
-${generateLongCaption(data)}
+const power =
+  random(powerWords);
 
-━━━━━━━━━━━━━━━
+generatedData.instagram = `
 
-# 🎥 TIKTOK CONTENT
+${emoji} ${hook1}
 
-${replaceTemplate(random(hooks), data)}
+Punya rumah sendiri di ${data.location}
+sekarang bukan cuma impian.
+
+Hunian ${emotion} dengan konsep modern
+${data.type}
+mulai ${data.price}.
+
+✨ Cocok untuk ${data.market}
+✨ ${benefit}
+✨ Promo ${data.promo}
+
+Buat kamu yang:
+• ${pain}
+• cari rumah ${power}
+• ingin hunian nyaman & strategis
+
+Sekarang saat terbaik untuk mulai punya rumah sendiri sebelum harga naik lagi.
+
+${cta}
+
+📩 DM sekarang untuk price list & jadwal survey.
+`;
+
+generatedData.tiktok = `
+
+${hook1}
+
+Masih ngontrak?
+Harga rumah makin naik tiap tahun 😵
+
+Sekarang ada hunian ${emotion}
+di ${data.location}
 
 🏡 ${data.type}
-📍 ${data.location}
-💰 ${data.price}
+💰 Mulai ${data.price}
+🎁 ${data.promo}
 
-${random(ctas)}
+${benefit}
 
-#property
-#rumahviral
-#fyp
+Cocok banget buat ${data.market}
 
-━━━━━━━━━━━━━━━
+${cta}
+`;
 
-# 📢 META ADS
+generatedData.meta = `
 
-Hunian modern di ${data.location}
-mulai ${data.price}
+🏡 Hunian Modern di ${data.location}
 
-✅ ${data.promo}
-✅ Lokasi strategis
+Miliki rumah ${emotion}
+dengan harga mulai ${data.price}
+
+✅ ${data.type}
+✅ ${benefit}
+✅ Promo ${data.promo}
 ✅ Cocok untuk ${data.market}
 
-${random(ctas)}
+Jangan tunggu harga naik lagi.
 
-━━━━━━━━━━━━━━━
+Klik sekarang untuk konsultasi & survey lokasi.
+`;
 
-# 💬 WHATSAPP FOLLOW UP
+generatedData.whatsapp = `
 
 Halo kak 👋
 
 Untuk unit di ${data.location}
-saat ini masih tersedia.
+masih available ya 😊
 
+Saat ini ada promo:
+🎁 ${data.promo}
+
+Spesifikasi:
 🏡 ${data.type}
 💰 Mulai ${data.price}
 
-🎁 Promo:
-${data.promo}
+Keunggulan:
+✨ ${benefit}
+✨ lingkungan nyaman
+✨ akses strategis
 
-Hunian cocok untuk
-${data.market}
-dengan lokasi strategis
-dan akses yang nyaman.
+Cocok banget untuk ${data.market}
 
 Kalau kakak berkenan,
-boleh dijadwalkan survey
-weekend ini 😊
-
+boleh saya bantu jadwalkan survey lokasi minggu ini 🙌
 `;
 
-generatedData.full =
-  finalOutput;
+  currentTab = 'instagram';
 
-  await addAIMessage(
-  generatedData.full
-);
+  tabButtons.forEach(btn =>
+    btn.classList.remove('active')
+  );
 
-  clearInterval(streamFX);
+  document
+    .querySelector('[data-tab="instagram"]')
+    .classList.add('active');
+
+  typeWriter(
+    generatedData.instagram
+  );
+
   generateBtn.disabled = false;
 
   generateBtn.innerHTML =
@@ -3158,54 +2357,9 @@ function showToast(message){
 
 }
 
-let searchTimeout;
-
-memorySearch.addEventListener('input', e => {
-
-  clearTimeout(searchTimeout);
-
-  searchTimeout = setTimeout(() => {
-
-    const keyword =
-      e.target.value.toLowerCase();
-
-    document
-      .querySelectorAll('.memory-item')
-      .forEach(item => {
-
-        item.style.display =
-          item.innerText
-            .toLowerCase()
-            .includes(keyword)
-          ? 'block'
-          : 'none';
-
-      });
-
-  }, 200);
-
-});
-
 /* =========================================
    PRESETS
 ========================================= */
-const locationInput =
-  document.getElementById('location');
-
-const typeInput =
-  document.getElementById('type');
-
-const priceInput =
-  document.getElementById('price');
-
-const promoInput =
-  document.getElementById('promo');
-
-const marketInput =
-  document.getElementById('market');
-
-const toneInput =
-  document.getElementById('tone');
 
 const presetButtons =
   document.querySelectorAll('.preset-btn');
@@ -3219,7 +2373,7 @@ presetButtons.forEach(btn => {
 
     if(preset === 'Rumah Subsidi'){
 
-      locationInput.value = 'Serpong';
+      location.value = 'Serpong';
       type.value = '2 Kamar Tidur';
       price.value = '200 Jutaan';
       promo.value = 'Tanpa DP';
@@ -3229,7 +2383,7 @@ presetButtons.forEach(btn => {
 
     if(preset === 'Cluster Premium'){
 
-      locationInput.value = 'BSD City';
+      location.value = 'BSD City';
       type.value = '3 Kamar Tidur';
       price.value = '900 Jutaan';
       promo.value = 'Free Furnished';
@@ -3239,7 +2393,7 @@ presetButtons.forEach(btn => {
 
     if(preset === 'Apartemen'){
 
-      locationInput.value = 'Jakarta Selatan';
+      location.value = 'Jakarta Selatan';
       type.value = 'Studio';
       price.value = '400 Jutaan';
       promo.value = 'Free IPL';
@@ -3249,7 +2403,7 @@ presetButtons.forEach(btn => {
 
     if(preset === 'Kost'){
 
-      locationInput.value = 'Dekat Kampus';
+      location.value = 'Dekat Kampus';
       type.value = 'Kost Eksklusif';
       price.value = 'Mulai 1 Jutaan';
       promo.value = 'Free Wifi';
@@ -3260,6 +2414,28 @@ presetButtons.forEach(btn => {
     showToast('✨ Preset applied');
 
   });
+
+});
+
+/* =========================================
+   COPY TOAST
+========================================= */
+
+copyBtn.addEventListener('click', () => {
+
+  navigator.clipboard.writeText(
+    generatedData[currentTab]
+  );
+
+  copyBtn.innerHTML = '✅ Copied';
+
+  showToast('✅ Content copied');
+
+  setTimeout(() => {
+
+    copyBtn.innerHTML = 'Copy';
+
+  }, 2000);
 
 });
 
@@ -3286,66 +2462,6 @@ function saveHistory(){
 
 }
 
-document
-  .getElementById('regenBtn')
-  .addEventListener('click', () => {
-
-    generateBtn.click();
-
-});
-
-document
-  .getElementById('clearBtn')
-  .addEventListener('click', () => {
-
-    chatContainer.innerHTML = '';
-
-    showToast(
-      '🗑 Chat cleared'
-    );
-
-});
-
-document
-  .getElementById('copyBtn')
-  .addEventListener('click', () => {
-
-    const messages =
-
-      document.querySelectorAll(
-        '.ai-message .message-content'
-      );
-
-    if(!messages.length)
-      return;
-
-    const last =
-      messages[
-        messages.length - 1
-      ];
-
-    navigator.clipboard.writeText(
-      last.innerText
-    );
-
-    showToast(
-      '✅ Copied'
-    );
-
-});
-
-function scrollToOutput(){
-
-  const outputBox =
-    document.querySelector('.output-box');
-
-  outputBox.scrollIntoView({
-    behavior:'smooth',
-    block:'start'
-  });
-
-}
-
 /* SAVE AFTER GENERATE */
 
 const oldGenerate =
@@ -3355,11 +2471,15 @@ generateBtn.addEventListener('click', () => {
 
   setTimeout(() => {
 
-  saveHistory();
+    saveHistory();
 
-  scrollToOutput();
+    window.scrollTo({
+      top:
+        document.body.scrollHeight,
+      behavior:'smooth'
+    });
 
-}, 3500);
+  }, 5000);
 
 });
 
@@ -3416,67 +2536,68 @@ demoBtn.addEventListener('click', async () => {
   navigator.vibrate?.(30);
 
   generatorSection.scrollIntoView({
-    behavior:'smooth'
+    behavior:'smooth',
+    block:'start'
   });
 
   await new Promise(r => setTimeout(r, 1200));
 
-  const demoData = {
+  /* AUTO FILL */
 
-    location:'BSD City',
-    type:'3 Kamar Tidur',
-    price:'850 Jutaan',
-    promo:'Free Furnished + Tanpa DP',
-    market:'Pasangan Muda & Karyawan',
-    tone:'Luxury'
+  document.getElementById('location').value =
+    'BSD City';
 
-  };
+  document.getElementById('type').value =
+    '3 Kamar Tidur';
 
-  async function fillInput(id, value){
+  document.getElementById('price').value =
+    '850 Jutaan';
 
-    const input =
-      document.getElementById(id);
+  document.getElementById('promo').value =
+    'Free Furnished + Smart Door Lock';
 
-    input.focus();
-
-    input.value = '';
-
-    for(let i=0; i<value.length; i++){
-
-      input.value += value.charAt(i);
-
-      await new Promise(r =>
-        setTimeout(r, 35)
-      );
-
-    }
-
-  }
-
-  await fillInput('location', demoData.location);
-  await fillInput('type', demoData.type);
-  await fillInput('price', demoData.price);
-  await fillInput('promo', demoData.promo);
-  await fillInput('market', demoData.market);
+  document.getElementById('market').value =
+    'Pasangan Muda & Karyawan';
 
   document.getElementById('tone').value =
-    demoData.tone;
+    'Luxury';
 
-  document
-    .querySelector('.generator-card')
-    .classList.add('focus-glow');
+  /* INPUT ANIMATION */
+
+  const inputs =
+    document.querySelectorAll('input, select');
+
+  inputs.forEach((input, index) => {
+
+    setTimeout(() => {
+
+      input.classList.add('focus-glow');
+
+      setTimeout(() => {
+
+        input.classList.remove('focus-glow');
+
+      }, 800);
+
+    }, index * 120);
+
+  });
+
+  await new Promise(r => setTimeout(r, 1200));
+
+  generateBtn.click();
+
+  /* AUTO SCROLL TO OUTPUT */
 
   setTimeout(() => {
 
-    document
-      .querySelector('.generator-card')
-      .classList.remove('focus-glow');
+    document.querySelector('.output-box')
+      .scrollIntoView({
+        behavior:'smooth',
+        block:'start'
+      });
 
-  }, 2000);
-
-  await new Promise(r => setTimeout(r, 700));
-
-  generateBtn.click();
+  }, 2500);
 
 });
 
@@ -3519,6 +2640,56 @@ modal.addEventListener('click', e => {
 });
 
 /* =========================================
+   PRODUCT
+========================================= */
+
+document
+  .getElementById('footerGenerator')
+  .addEventListener('click', () => {
+
+    generatorSection.scrollIntoView({
+      behavior:'smooth'
+    });
+
+});
+
+document
+  .getElementById('footerHooks')
+  .addEventListener('click', () => {
+
+    currentTab = 'tiktok';
+
+    document
+      .querySelector('[data-tab="tiktok"]')
+      .click();
+
+    generatorSection.scrollIntoView({
+      behavior:'smooth'
+    });
+
+    showToast('🔥 Viral Hooks Opened');
+
+});
+
+document
+  .getElementById('footerCopy')
+  .addEventListener('click', () => {
+
+    currentTab = 'instagram';
+
+    document
+      .querySelector('[data-tab="instagram"]')
+      .click();
+
+    generatorSection.scrollIntoView({
+      behavior:'smooth'
+    });
+
+    showToast('✨ Smart Copywriting Opened');
+
+});
+
+/* =========================================
    BRAND
 ========================================= */
 
@@ -3552,29 +2723,6 @@ document
       'AI Products',
       'Nexora AI is part of the DTSCRIPTID ecosystem focused on AI-powered productivity and marketing tools.'
     );
-
-});
-
-document
-  .getElementById('memorySearch')
-  .addEventListener('input', e => {
-
-    const keyword =
-      e.target.value.toLowerCase();
-
-    document
-      .querySelectorAll('.memory-item')
-      .forEach(item => {
-
-        const text =
-          item.innerText.toLowerCase();
-
-        item.style.display =
-          text.includes(keyword)
-          ? 'block'
-          : 'none';
-
-      });
 
 });
 
@@ -4589,6 +3737,53 @@ const realtimeInterval =
 
 }, 500);
 
+/* =========================================
+   ONLINE STATUS
+========================================= */
+
+window.addEventListener(
+
+  'beforeunload',
+
+  async () => {
+
+    if(!window.currentUID)
+      return;
+
+    const userRef =
+
+      window.firebaseTools.doc(
+        window.db,
+        'users',
+        window.currentUID
+      );
+
+    await window.firebaseTools.setDoc(
+
+      userRef,
+
+      {
+
+        online:false,
+
+        lastActive:
+          window.firebaseTools
+            .serverTimestamp()
+
+      },
+
+      {
+
+        merge:true
+
+      }
+
+    );
+
+  }
+
+);
+
 /* WAIT FIREBASE */
 
 const firebaseInterval =
@@ -4963,8 +4158,6 @@ async function removeProUser(uid){
   );
 
 }
-
-renderMemory();
 
 /* =========================================
    DEMO PRO ACCESS
