@@ -31,6 +31,7 @@ body{
   border-radius:50%;
   filter:blur(120px);
   z-index:-1;
+  
 }
 
 .orb1{
@@ -1934,7 +1935,18 @@ const hooks = [
   "Karyawan muda wajib tahu promo rumah ini 👀",
   "Baru launching! Rumah impian mulai {price}",
   "Bisa punya rumah tanpa ribet di {location}",
-  "Promo terbatas untuk unit terbaik minggu ini 🔥"
+  "Promo terbatas untuk unit terbaik minggu ini 🔥",
+  "Akhirnya ada rumah modern di {location} dengan cicilan ringan",
+  "Karyawan muda sekarang bisa punya rumah sendiri 🔥",
+  "Cluster premium dekat akses utama {location}",
+  "Bukan sekedar rumah, ini investasi masa depan 🚀",
+  "Harga rumah naik tiap tahun, tapi promo ini masih aktif 👀",
+  "Bayangin pulang kerja langsung ke rumah nyaman sendiri ✨",
+  "Rumah aesthetic dengan harga masih masuk akal di {location}",
+  "Banyak yang survey minggu ini karena promonya gila 🔥",
+  "Unit terbatas untuk promo {promo}",
+  "Cuma di {location}, rumah modern mulai {price}",
+  "Pasangan muda wajib cek rumah ini sebelum sold out"
 ];
 
 const ctas = [
@@ -1960,6 +1972,51 @@ const emojis = ["🔥","✨","😱","🏡","🚀","💯"];
 /* =========================================
    HELPERS
 ========================================= */
+
+function generateLongCaption(data){
+
+  const benefits = [
+
+    'akses strategis dekat pusat kota',
+    'lingkungan nyaman dan modern',
+    'cocok untuk investasi jangka panjang',
+    'desain rumah kekinian',
+    'akses mudah ke transportasi',
+    'dekat sekolah dan pusat kuliner',
+    'potensi kenaikan harga tinggi',
+    'suasana cluster lebih eksklusif'
+
+  ];
+
+  return `
+
+${random(emojis)} ${replaceTemplate(random(hooks), data)}
+
+Punya rumah nyaman di ${data.location}
+sekarang bukan cuma impian.
+
+Hunian ${random(emotions)} dengan
+${data.type} mulai ${data.price}.
+
+✨ Keunggulan:
+• ${random(benefits)}
+• ${random(benefits)}
+• ${random(benefits)}
+
+🎁 Promo:
+${data.promo}
+
+Cocok untuk:
+${data.market}
+
+${random(ctas)}
+
+📩 DM sekarang untuk pricelist
+dan jadwal survey lokasi minggu ini.
+
+`;
+
+}
 
 function random(arr){
 
@@ -1989,7 +2046,7 @@ function typeWriter(text){
 
   const typing = setInterval(() => {
 
-    tabContent.innerHTML += text.charAt(i);
+    tabContent.textContent += text.charAt(i);
 
     i++;
 
@@ -2006,11 +2063,14 @@ function loadingSteps(){
   return new Promise(resolve => {
 
     const steps = [
-      "🔍 Analyzing property market...",
-      "🧠 Creating viral hooks...",
-      "✨ Generating emotional CTA...",
-      "🚀 Optimizing conversion copy..."
-    ];
+
+  "🧠 AI analyzing property trends...",
+  "📊 Optimizing high-converting copy...",
+  "✨ Generating emotional hooks...",
+  "🚀 Building viral marketing content...",
+  "🔥 Finalizing premium AI result..."
+
+];
 
     let index = 0;
 
@@ -2146,42 +2206,70 @@ generateBtn.addEventListener('click', async () => {
 
   /* OUTPUT */
 
-  generatedData.instagram = `
-${emoji} ${intro}
+generatedData.instagram =
+  generateLongCaption(data);
 
-Hunian ${emotion} di ${data.location} dengan ${data.type} mulai ${data.price}.
+generatedData.tiktok = `
 
-Promo ${data.promo} khusus minggu ini.
+🎥 POV:
 
-Cocok untuk ${data.market}.
+${replaceTemplate(random(hooks), data)}
 
-${cta}
+Rumah ${data.type}
+di ${data.location}
+
+✨ ${data.promo}
+💰 Mulai ${data.price}
+
+${random(ctas)}
+
+#rumahbsd
+#rumahmurah
+#properti
+#fyp
+#rumahimpian
+
 `;
 
-  generatedData.tiktok = `
-${hook1}
+generatedData.meta = `
 
-${hook2}
+🏡 Hunian Modern di ${data.location}
 
-${cta}
+Miliki rumah ${data.type}
+mulai ${data.price}.
+
+✅ ${data.promo}
+✅ Lokasi strategis
+✅ Cocok untuk ${data.market}
+
+${random(ctas)}
+
+Klik sekarang sebelum unit habis.
+
 `;
 
-  generatedData.meta = `
-Cari rumah ${emotion} dekat ${data.location}?
+generatedData.whatsapp = `
 
-Kini hadir hunian ${data.type} mulai ${data.price} dengan promo ${data.promo}.
-
-${cta}
-`;
-
-  generatedData.whatsapp = `
 Halo kak 👋
 
-Untuk unit di ${data.location} masih tersedia dan saat ini ada promo ${data.promo}.
+Untuk unit di ${data.location}
+saat ini masih tersedia.
 
-Rumah ${data.type} mulai ${data.price} dan cocok untuk ${data.market}.
+🏡 ${data.type}
+💰 Mulai ${data.price}
 
-Kalau berkenan, minggu ini bisa jadwalkan survey lokasi 😊
+🎁 Promo:
+${data.promo}
+
+Hunian cocok untuk
+${data.market}
+dengan lokasi strategis
+dan akses yang nyaman.
+
+Kalau kakak berkenan,
+boleh dijadwalkan survey
+weekend ini 😊
+
 `;
 
   currentTab = 'instagram';
@@ -2351,6 +2439,18 @@ function saveHistory(){
 
 }
 
+function scrollToOutput(){
+
+  const outputBox =
+    document.querySelector('.output-box');
+
+  outputBox.scrollIntoView({
+    behavior:'smooth',
+    block:'start'
+  });
+
+}
+
 /* SAVE AFTER GENERATE */
 
 const oldGenerate =
@@ -2360,15 +2460,11 @@ generateBtn.addEventListener('click', () => {
 
   setTimeout(() => {
 
-    saveHistory();
+  saveHistory();
 
-    window.scrollTo({
-      top:
-        document.body.scrollHeight,
-      behavior:'smooth'
-    });
+  scrollToOutput();
 
-  }, 5000);
+}, 3500);
 
 });
 
@@ -2428,27 +2524,48 @@ demoBtn.addEventListener('click', async () => {
     behavior:'smooth'
   });
 
-  /* AUTO FILL DEMO */
+  await new Promise(r => setTimeout(r, 1200));
 
-  document.getElementById('location').value =
-    'BSD City';
+  const demoData = {
 
-  document.getElementById('type').value =
-    '3 Kamar Tidur';
+    location:'BSD City',
+    type:'3 Kamar Tidur',
+    price:'850 Jutaan',
+    promo:'Free Furnished + Tanpa DP',
+    market:'Pasangan Muda & Karyawan',
+    tone:'Luxury'
 
-  document.getElementById('price').value =
-    '850 Jutaan';
+  };
 
-  document.getElementById('promo').value =
-    'Free Furnished + Tanpa DP';
+  async function fillInput(id, value){
 
-  document.getElementById('market').value =
-    'Pasangan Muda & Karyawan';
+    const input =
+      document.getElementById(id);
+
+    input.focus();
+
+    input.value = '';
+
+    for(let i=0; i<value.length; i++){
+
+      input.value += value.charAt(i);
+
+      await new Promise(r =>
+        setTimeout(r, 35)
+      );
+
+    }
+
+  }
+
+  await fillInput('location', demoData.location);
+  await fillInput('type', demoData.type);
+  await fillInput('price', demoData.price);
+  await fillInput('promo', demoData.promo);
+  await fillInput('market', demoData.market);
 
   document.getElementById('tone').value =
-    'Luxury';
-
-  /* GLOW EFFECT */
+    demoData.tone;
 
   document
     .querySelector('.generator-card')
@@ -2460,15 +2577,11 @@ demoBtn.addEventListener('click', async () => {
       .querySelector('.generator-card')
       .classList.remove('focus-glow');
 
-  }, 1500);
+  }, 2000);
 
-  /* AUTO GENERATE */
+  await new Promise(r => setTimeout(r, 700));
 
-  setTimeout(() => {
-
-    generateBtn.click();
-
-  }, 900);
+  generateBtn.click();
 
 });
 
@@ -3607,53 +3720,6 @@ const realtimeInterval =
   }
 
 }, 500);
-
-/* =========================================
-   ONLINE STATUS
-========================================= */
-
-window.addEventListener(
-
-  'beforeunload',
-
-  async () => {
-
-    if(!window.currentUID)
-      return;
-
-    const userRef =
-
-      window.firebaseTools.doc(
-        window.db,
-        'users',
-        window.currentUID
-      );
-
-    await window.firebaseTools.setDoc(
-
-      userRef,
-
-      {
-
-        online:false,
-
-        lastActive:
-          window.firebaseTools
-            .serverTimestamp()
-
-      },
-
-      {
-
-        merge:true
-
-      }
-
-    );
-
-  }
-
-);
 
 /* WAIT FIREBASE */
 
