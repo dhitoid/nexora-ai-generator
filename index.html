@@ -1158,6 +1158,88 @@ textarea{
 
 }
 
+/* =========================================
+   GPT THINKING
+========================================= */
+
+.ai-thinking{
+  margin-bottom:18px;
+  background:
+    rgba(255,255,255,0.04);
+  border:
+    1px solid rgba(255,255,255,0.06);
+  border-radius:20px;
+  padding:18px;
+  overflow:hidden;
+  transition:0.3s;
+}
+
+.hidden{
+  display:none;
+}
+
+.thinking-top{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:14px;
+  font-weight:600;
+  color:#DCE3F5;
+}
+
+.thinking-dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:#00C2FF;
+  animation:pulse 1s infinite;
+}
+
+@keyframes pulse{
+  0%{
+    transform:scale(1);
+    opacity:1;
+  }
+  50%{
+    transform:scale(1.5);
+    opacity:.5;
+  }
+  100%{
+    transform:scale(1);
+    opacity:1;
+  }
+}
+
+.thinking-steps{
+  color:#AEB6CB;
+  line-height:1.9;
+  font-size:14px;
+  white-space:pre-line;
+}
+
+.reason-line{
+  opacity:0;
+  transform:translateY(10px);
+  animation:fadeReason .4s ease forwards;
+
+}
+
+.tab-content{
+  max-height:500px;
+  overflow-y:auto;
+  scroll-behavior:smooth;
+
+}
+
+@keyframes fadeReason{
+
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+
+}
+
 /* MOBILE */
 
 @media(max-width:768px){
@@ -1173,6 +1255,19 @@ textarea{
   .hero-buttons{
     flex-direction:column;
   }
+
+}
+
+.tab-content{
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.04),
+      rgba(255,255,255,0.02)
+    );
+
+  backdrop-filter:blur(20px);
 
 }
 
@@ -1348,6 +1443,22 @@ textarea{
   </div>
 
   <!-- OUTPUT -->
+  
+  <div id="aiThinking" class="ai-thinking hidden">
+
+  <div class="thinking-top">
+
+    <div class="thinking-dot"></div>
+
+    <span>Nexora AI Thinking</span>
+
+  </div>
+
+  <div id="thinkingSteps" class="thinking-steps">
+    Initializing AI...
+  </div>
+
+</div>
 
   <div id="tabContent" class="tab-content">
     Your AI content will appear here...
@@ -1909,6 +2020,11 @@ window.addEventListener(
 const generateBtn = document.getElementById('generateBtn');
 const copyBtn = document.getElementById('copyBtn');
 const tabContent = document.getElementById('tabContent');
+const aiThinking =
+  document.getElementById('aiThinking');
+
+const thinkingSteps =
+  document.getElementById('thinkingSteps');
 
 const tabButtons =
   document.querySelectorAll('.tab-btn');
@@ -2036,25 +2152,110 @@ function replaceTemplate(text, data){
 
 }
 
-function typeWriter(text){
+async function fakeGPTThinking(data){
 
-  tabContent.innerHTML = '';
+  aiThinking.classList.remove('hidden');
+
+  thinkingSteps.innerHTML = '';
+
+  const steps = [
+
+    `📍 Analyzing location potential in ${data.location}`,
+
+    `👥 Detecting target market: ${data.market}`,
+
+    `🧠 Generating emotional selling angle`,
+
+    `🔥 Optimizing high-converting hooks`,
+
+    `✨ Creating premium copywriting structure`,
+
+    `📈 Enhancing conversion probability`,
+
+    `🚀 Finalizing AI marketing output`
+
+  ];
+
+  for(const step of steps){
+
+    const div =
+      document.createElement('div');
+
+    div.className = 'reason-line';
+
+    div.innerHTML = step;
+
+    thinkingSteps.appendChild(div);
+
+    await new Promise(r =>
+      setTimeout(r, 700)
+    );
+
+  }
+
+}
+
+function addStreamingEffect(){
+
+  const randomWords = [
+
+    'Analyzing...',
+    'Optimizing...',
+    'Structuring...',
+    'Enhancing...',
+    'Generating...',
+    'Refining...'
+
+  ];
 
   let i = 0;
 
-  const speed = 8;
+  return setInterval(() => {
 
-  const typing = setInterval(() => {
-
-    tabContent.textContent += text.charAt(i);
+    generateBtn.innerHTML =
+      `✨ ${
+        randomWords[
+          i % randomWords.length
+        ]
+      }`;
 
     i++;
 
-    if(i >= text.length){
-      clearInterval(typing);
-    }
+  }, 600);
 
-  }, speed);
+}
+
+async function streamResponse(text){
+
+  tabContent.innerHTML = '';
+
+  tabContent.classList.add(
+    'typing-cursor'
+  );
+
+  const chunks =
+    text.split(' ');
+
+  for(let i=0; i<chunks.length; i++){
+
+    tabContent.innerHTML +=
+      chunks[i] + ' ';
+
+    tabContent.scrollTop =
+      tabContent.scrollHeight;
+
+    await new Promise(r =>
+      setTimeout(
+        r,
+        18 + Math.random()*25
+      )
+    );
+
+  }
+
+  tabContent.classList.remove(
+    'typing-cursor'
+  );
 
 }
 
@@ -2114,7 +2315,7 @@ tabButtons.forEach(btn => {
     currentTab =
       btn.dataset.tab;
 
-    typeWriter(
+    streamResponse(
       generatedData[currentTab]
     );
 
@@ -2157,9 +2358,13 @@ generateBtn.addEventListener('click', async () => {
   };
 
   generateBtn.disabled = true;
+  const streamFX =
+  addStreamingEffect();
 
   generateBtn.innerHTML =
     '✨ Nexora AI is thinking...';
+
+  await fakeGPTThinking(data);
 
   await loadingSteps();
 
@@ -2282,10 +2487,11 @@ weekend ini 😊
     .querySelector('[data-tab="instagram"]')
     .classList.add('active');
 
-  typeWriter(
+  streamResponse(
     generatedData.instagram
   );
 
+  clearInterval(streamFX);
   generateBtn.disabled = false;
 
   generateBtn.innerHTML =
