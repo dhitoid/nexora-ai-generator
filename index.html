@@ -1804,8 +1804,47 @@ textarea{
   <!-- CHAT AREA -->
 
   <div class="ai-chat-area">
+    
+    <!-- AI THINKING -->
+
+<div id="aiThinking" class="ai-thinking hidden">
+
+  <div class="thinking-header">
+    <span class="thinking-dot"></span>
+    Nexora AI Reasoning
+  </div>
+
+  <div id="thinkingSteps" class="thinking-steps">
+
+  </div>
+
+</div>
 
     <!-- CHAT -->
+    
+    <div class="ai-tabs">
+
+  <button class="ai-tab active">
+    Full Result
+  </button>
+
+  <button class="ai-tab">
+    Instagram
+  </button>
+
+  <button class="ai-tab">
+    TikTok
+  </button>
+
+  <button class="ai-tab">
+    Meta Ads
+  </button>
+
+  <button class="ai-tab">
+    WhatsApp
+  </button>
+
+</div>
 
     <div id="chatContainer" class="chat-container">
 
@@ -1850,13 +1889,6 @@ textarea{
   </div>
 
 </div>
-
-  <!-- OUTPUT -->
-
-  <div id="tabContent" class="tab-content">
-    Your AI content will appear here...
-  </div>
-
 </div>
 
 </section>
@@ -2588,23 +2620,33 @@ async function addAIMessage(text){
 
   div.innerHTML = `
 
-    <div class="message-top">
-      ✨ Nexora AI
-    </div>
+<div class="message-top">
+  <span>✨ Nexora AI</span>
 
-    <div class="message-content"></div>
+  <div class="message-actions">
 
-  `;
+    <button class="mini-action copy-msg">
+      Copy
+    </button>
+
+    <button class="mini-action regen-msg">
+      Retry
+    </button>
+
+  </div>
+</div>
+
+<div class="message-content"></div>
+
+`;
 
   chatContainer.appendChild(div);
 
   const content =
     div.querySelector('.message-content');
 
-  const words =
-    text.split(' ');
-
-  for(const word of words){
+ const chunks = text.match(/.{1,12}/g);
+for(const chunk of chunks)
 
     content.innerHTML +=
       word + ' ';
@@ -2621,6 +2663,24 @@ async function addAIMessage(text){
   }
 
 }
+
+div.querySelector('.copy-msg')
+.addEventListener('click', () => {
+
+  navigator.clipboard.writeText(
+    text
+  );
+
+  showToast('✅ Copied');
+
+});
+
+div.querySelector('.regen-msg')
+.addEventListener('click', () => {
+
+  generateBtn.click();
+
+});
 
 function scrollChat(){
 
@@ -2689,27 +2749,48 @@ function renderMemory(){
 
 div.innerHTML = `
 
-  <div class="memory-mini-top">
+<div class="memory-card">
 
-    <div class="memory-dot"></div>
+  <div class="memory-card-top">
 
-    <span>
-      ${memory.location}
-    </span>
+    <div class="memory-left">
+
+      <div class="memory-dot"></div>
+
+      <div>
+
+        <div class="memory-title">
+          ${memory.location}
+        </div>
+
+        <div class="memory-sub">
+          ${memory.type}
+        </div>
+
+      </div>
+
+    </div>
+
+    <button class="memory-load">
+      Load
+    </button>
 
   </div>
 
-  <div class="memory-mini-desc">
+  <div class="memory-tags">
 
-    ${memory.type}
+    <span>${memory.price}</span>
+    <span>${memory.tone}</span>
 
   </div>
+
+</div>
 
 `;
 
     div.addEventListener('click', () => {
 
-      location.value =
+      locationInput.value =
         memory.location;
 
       type.value =
@@ -2926,8 +3007,12 @@ generateBtn.addEventListener('click', async () => {
   const streamFX =
   addStreamingEffect();
 
-  generateBtn.innerHTML =
-    '✨ Nexora AI is thinking...';
+  generateBtn.innerHTML = `
+
+<div class="btn-loader"></div>
+Nexora AI Thinking
+
+`;
 
   await fakeGPTThinking(data);
 
@@ -3073,9 +3158,54 @@ function showToast(message){
 
 }
 
+let searchTimeout;
+
+memorySearch.addEventListener('input', e => {
+
+  clearTimeout(searchTimeout);
+
+  searchTimeout = setTimeout(() => {
+
+    const keyword =
+      e.target.value.toLowerCase();
+
+    document
+      .querySelectorAll('.memory-item')
+      .forEach(item => {
+
+        item.style.display =
+          item.innerText
+            .toLowerCase()
+            .includes(keyword)
+          ? 'block'
+          : 'none';
+
+      });
+
+  }, 200);
+
+});
+
 /* =========================================
    PRESETS
 ========================================= */
+const locationInput =
+  document.getElementById('location');
+
+const typeInput =
+  document.getElementById('type');
+
+const priceInput =
+  document.getElementById('price');
+
+const promoInput =
+  document.getElementById('promo');
+
+const marketInput =
+  document.getElementById('market');
+
+const toneInput =
+  document.getElementById('tone');
 
 const presetButtons =
   document.querySelectorAll('.preset-btn');
@@ -3089,7 +3219,7 @@ presetButtons.forEach(btn => {
 
     if(preset === 'Rumah Subsidi'){
 
-      location.value = 'Serpong';
+      locationInput.value = 'Serpong';
       type.value = '2 Kamar Tidur';
       price.value = '200 Jutaan';
       promo.value = 'Tanpa DP';
@@ -3099,7 +3229,7 @@ presetButtons.forEach(btn => {
 
     if(preset === 'Cluster Premium'){
 
-      location.value = 'BSD City';
+      locationInput.value = 'BSD City';
       type.value = '3 Kamar Tidur';
       price.value = '900 Jutaan';
       promo.value = 'Free Furnished';
@@ -3109,7 +3239,7 @@ presetButtons.forEach(btn => {
 
     if(preset === 'Apartemen'){
 
-      location.value = 'Jakarta Selatan';
+      locationInput.value = 'Jakarta Selatan';
       type.value = 'Studio';
       price.value = '400 Jutaan';
       promo.value = 'Free IPL';
@@ -3119,7 +3249,7 @@ presetButtons.forEach(btn => {
 
     if(preset === 'Kost'){
 
-      location.value = 'Dekat Kampus';
+      locationInput.value = 'Dekat Kampus';
       type.value = 'Kost Eksklusif';
       price.value = 'Mulai 1 Jutaan';
       promo.value = 'Free Wifi';
