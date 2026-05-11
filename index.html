@@ -1293,18 +1293,20 @@ textarea{
 .ai-sidebar{
 
   background:
-    rgba(255,255,255,0.04);
+    rgba(255,255,255,0.03);
 
   border:
-    1px solid rgba(255,255,255,0.06);
+    1px solid rgba(255,255,255,0.05);
 
   border-radius:24px;
 
-  padding:20px;
+  padding:18px;
 
   height:650px;
 
   overflow-y:auto;
+
+  backdrop-filter:blur(20px);
 
 }
 
@@ -1337,9 +1339,9 @@ textarea{
   border-radius:18px;
 
   background:
-    rgba(255,255,255,0.05);
+    rgba(255,255,255,0.04);
 
-  margin-bottom:12px;
+  margin-bottom:10px;
 
   cursor:pointer;
 
@@ -1347,6 +1349,10 @@ textarea{
 
   border:
     1px solid rgba(255,255,255,0.05);
+
+  overflow:hidden;
+
+  position:relative;
 
 }
 
@@ -1555,6 +1561,76 @@ textarea{
 
 }
 
+.memory-mini-top{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:10px;
+
+  margin-bottom:8px;
+
+  font-weight:600;
+
+  font-size:14px;
+
+}
+
+.memory-dot{
+
+  width:8px;
+  height:8px;
+
+  border-radius:50%;
+
+  background:
+    linear-gradient(
+      135deg,
+      #7B61FF,
+      #00C2FF
+    );
+
+}
+
+.memory-mini-desc{
+
+  font-size:12px;
+
+  color:#98A2B3;
+
+  overflow:hidden;
+
+  white-space:nowrap;
+
+  text-overflow:ellipsis;
+
+}
+
+.memory-search{
+
+  width:100%;
+
+  margin:14px 0 18px;
+
+  padding:14px;
+
+  border:none;
+
+  border-radius:16px;
+
+  background:
+    rgba(255,255,255,0.05);
+
+  border:
+    1px solid rgba(255,255,255,0.05);
+
+  color:white;
+
+  outline:none;
+
+}
+
 </style>
 </head>
 
@@ -1699,6 +1775,12 @@ textarea{
   <aside class="ai-sidebar">
 
     <div class="sidebar-top">
+      
+      <input
+  id="memorySearch"
+  class="memory-search"
+  placeholder="Search memory..."
+>
 
       <h3>AI Memory</h3>
 
@@ -1768,28 +1850,6 @@ textarea{
   </div>
 
 </div>
-
-  <!-- TABS -->
-
-  <div class="tabs">
-
-    <button class="tab-btn active" data-tab="instagram">
-      Instagram
-    </button>
-
-    <button class="tab-btn" data-tab="tiktok">
-      TikTok
-    </button>
-
-    <button class="tab-btn" data-tab="meta">
-      Meta Ads
-    </button>
-
-    <button class="tab-btn" data-tab="whatsapp">
-      WhatsApp
-    </button>
-
-  </div>
 
   <!-- OUTPUT -->
 
@@ -2364,9 +2424,6 @@ const aiThinking =
 const thinkingSteps =
   document.getElementById('thinkingSteps');
 
-const tabButtons =
-  document.querySelectorAll('.tab-btn');
-
 let generatedData = {
 
   instagram: '',
@@ -2375,8 +2432,6 @@ let generatedData = {
   whatsapp: ''
 
 };
-
-let currentTab = 'instagram';
 
 /* =========================================
    DATABASE
@@ -2632,20 +2687,25 @@ function renderMemory(){
     div.className =
       'memory-item';
 
-    div.innerHTML = `
+div.innerHTML = `
 
-      <div class="memory-title">
-        ${memory.location}
-      </div>
+  <div class="memory-mini-top">
 
-      <div class="memory-desc">
+    <div class="memory-dot"></div>
 
-        ${memory.type}<br>
-        ${memory.price}
+    <span>
+      ${memory.location}
+    </span>
 
-      </div>
+  </div>
 
-    `;
+  <div class="memory-mini-desc">
+
+    ${memory.type}
+
+  </div>
+
+`;
 
     div.addEventListener('click', () => {
 
@@ -2826,31 +2886,6 @@ function loadingSteps(){
 }
 
 /* =========================================
-   TAB SYSTEM
-========================================= */
-
-tabButtons.forEach(btn => {
-
-  btn.addEventListener('click', () => {
-
-    tabButtons.forEach(b =>
-      b.classList.remove('active')
-    );
-
-    btn.classList.add('active');
-
-    currentTab =
-      btn.dataset.tab;
-
-    streamResponse(
-      generatedData[currentTab]
-    );
-
-  });
-
-});
-
-/* =========================================
    GENERATOR
 ========================================= */
 
@@ -2941,37 +2976,34 @@ generateBtn.addEventListener('click', async () => {
 
   /* OUTPUT */
 
-generatedData.instagram =
-  generateLongCaption(data);
+const finalOutput = `
 
-generatedData.tiktok = `
+# ✨ INSTAGRAM CAPTION
 
-🎥 POV:
+${generateLongCaption(data)}
+
+━━━━━━━━━━━━━━━
+
+# 🎥 TIKTOK CONTENT
 
 ${replaceTemplate(random(hooks), data)}
 
-Rumah ${data.type}
-di ${data.location}
-
-✨ ${data.promo}
-💰 Mulai ${data.price}
+🏡 ${data.type}
+📍 ${data.location}
+💰 ${data.price}
 
 ${random(ctas)}
 
-#rumahbsd
-#rumahmurah
-#properti
+#property
+#rumahviral
 #fyp
-#rumahimpian
 
-`;
+━━━━━━━━━━━━━━━
 
-generatedData.meta = `
+# 📢 META ADS
 
-🏡 Hunian Modern di ${data.location}
-
-Miliki rumah ${data.type}
-mulai ${data.price}.
+Hunian modern di ${data.location}
+mulai ${data.price}
 
 ✅ ${data.promo}
 ✅ Lokasi strategis
@@ -2979,11 +3011,9 @@ mulai ${data.price}.
 
 ${random(ctas)}
 
-Klik sekarang sebelum unit habis.
+━━━━━━━━━━━━━━━
 
-`;
-
-generatedData.whatsapp = `
+# 💬 WHATSAPP FOLLOW UP
 
 Halo kak 👋
 
@@ -3007,18 +3037,11 @@ weekend ini 😊
 
 `;
 
-  currentTab = 'instagram';
-
-  tabButtons.forEach(btn =>
-    btn.classList.remove('active')
-  );
-
-  document
-    .querySelector('[data-tab="instagram"]')
-    .classList.add('active');
+generatedData.full =
+  finalOutput;
 
   await addAIMessage(
-  generatedData.instagram
+  generatedData.full
 );
 
   clearInterval(streamFX);
@@ -3026,26 +3049,6 @@ weekend ini 😊
 
   generateBtn.innerHTML =
     '✨ Generate Content';
-
-});
-
-/* =========================================
-   COPY BUTTON
-========================================= */
-
-copyBtn.addEventListener('click', () => {
-
-  navigator.clipboard.writeText(
-    generatedData[currentTab]
-  );
-
-  copyBtn.innerHTML = '✅ Copied';
-
-  setTimeout(() => {
-
-    copyBtn.innerHTML = 'Copy';
-
-  }, 2000);
 
 });
 
@@ -3127,28 +3130,6 @@ presetButtons.forEach(btn => {
     showToast('✨ Preset applied');
 
   });
-
-});
-
-/* =========================================
-   COPY TOAST
-========================================= */
-
-copyBtn.addEventListener('click', () => {
-
-  navigator.clipboard.writeText(
-    generatedData[currentTab]
-  );
-
-  copyBtn.innerHTML = '✅ Copied';
-
-  showToast('✅ Content copied');
-
-  setTimeout(() => {
-
-    copyBtn.innerHTML = 'Copy';
-
-  }, 2000);
 
 });
 
@@ -3408,56 +3389,6 @@ modal.addEventListener('click', e => {
 });
 
 /* =========================================
-   PRODUCT
-========================================= */
-
-document
-  .getElementById('footerGenerator')
-  .addEventListener('click', () => {
-
-    generatorSection.scrollIntoView({
-      behavior:'smooth'
-    });
-
-});
-
-document
-  .getElementById('footerHooks')
-  .addEventListener('click', () => {
-
-    currentTab = 'tiktok';
-
-    document
-      .querySelector('[data-tab="tiktok"]')
-      .click();
-
-    generatorSection.scrollIntoView({
-      behavior:'smooth'
-    });
-
-    showToast('🔥 Viral Hooks Opened');
-
-});
-
-document
-  .getElementById('footerCopy')
-  .addEventListener('click', () => {
-
-    currentTab = 'instagram';
-
-    document
-      .querySelector('[data-tab="instagram"]')
-      .click();
-
-    generatorSection.scrollIntoView({
-      behavior:'smooth'
-    });
-
-    showToast('✨ Smart Copywriting Opened');
-
-});
-
-/* =========================================
    BRAND
 ========================================= */
 
@@ -3491,6 +3422,29 @@ document
       'AI Products',
       'Nexora AI is part of the DTSCRIPTID ecosystem focused on AI-powered productivity and marketing tools.'
     );
+
+});
+
+document
+  .getElementById('memorySearch')
+  .addEventListener('input', e => {
+
+    const keyword =
+      e.target.value.toLowerCase();
+
+    document
+      .querySelectorAll('.memory-item')
+      .forEach(item => {
+
+        const text =
+          item.innerText.toLowerCase();
+
+        item.style.display =
+          text.includes(keyword)
+          ? 'block'
+          : 'none';
+
+      });
 
 });
 
