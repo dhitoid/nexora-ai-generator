@@ -1271,6 +1271,290 @@ textarea{
 
 }
 
+/* =========================================
+   AI CHAT LAYOUT
+========================================= */
+
+.ai-layout{
+
+  display:grid;
+
+  grid-template-columns:
+    280px 1fr;
+
+  gap:20px;
+
+  margin-top:30px;
+
+}
+
+/* SIDEBAR */
+
+.ai-sidebar{
+
+  background:
+    rgba(255,255,255,0.04);
+
+  border:
+    1px solid rgba(255,255,255,0.06);
+
+  border-radius:24px;
+
+  padding:20px;
+
+  height:650px;
+
+  overflow-y:auto;
+
+}
+
+.sidebar-top{
+
+  margin-bottom:20px;
+
+}
+
+.sidebar-top h3{
+
+  margin-bottom:8px;
+
+}
+
+.sidebar-top p{
+
+  color:#9FA4B5;
+  font-size:14px;
+  line-height:1.7;
+
+}
+
+/* MEMORY */
+
+.memory-item{
+
+  padding:14px;
+
+  border-radius:18px;
+
+  background:
+    rgba(255,255,255,0.05);
+
+  margin-bottom:12px;
+
+  cursor:pointer;
+
+  transition:0.3s;
+
+  border:
+    1px solid rgba(255,255,255,0.05);
+
+}
+
+.memory-item:hover{
+
+  transform:translateY(-2px);
+
+  border-color:
+    rgba(123,97,255,0.5);
+
+}
+
+.memory-title{
+
+  font-size:14px;
+  font-weight:600;
+
+  margin-bottom:6px;
+
+}
+
+.memory-desc{
+
+  font-size:12px;
+  color:#9FA4B5;
+
+  line-height:1.6;
+
+}
+
+/* CHAT */
+
+.ai-chat-area{
+
+  background:
+    rgba(255,255,255,0.04);
+
+  border:
+    1px solid rgba(255,255,255,0.06);
+
+  border-radius:24px;
+
+  overflow:hidden;
+
+  display:flex;
+  flex-direction:column;
+
+}
+
+.chat-container{
+
+  height:650px;
+
+  overflow-y:auto;
+
+  padding:24px;
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:18px;
+
+  scroll-behavior:smooth;
+
+}
+
+/* MESSAGE */
+
+.ai-message,
+.user-message{
+
+  max-width:85%;
+
+  padding:18px;
+
+  border-radius:22px;
+
+  line-height:1.8;
+
+  animation:messageUp .3s ease;
+
+}
+
+@keyframes messageUp{
+
+  from{
+    opacity:0;
+    transform:translateY(10px);
+  }
+
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+
+}
+
+.ai-message{
+
+  background:
+    rgba(255,255,255,0.05);
+
+  border:
+    1px solid rgba(255,255,255,0.06);
+
+  align-self:flex-start;
+
+}
+
+.user-message{
+
+  background:
+    linear-gradient(
+      135deg,
+      #7B61FF,
+      #00C2FF
+    );
+
+  align-self:flex-end;
+
+}
+
+/* MESSAGE TOP */
+
+.message-top{
+
+  font-size:13px;
+
+  opacity:.7;
+
+  margin-bottom:10px;
+
+}
+
+/* ACTIONS */
+
+.chat-actions{
+
+  display:flex;
+
+  gap:12px;
+
+  padding:20px;
+
+  border-top:
+    1px solid rgba(255,255,255,0.06);
+
+}
+
+.chat-action-btn{
+
+  flex:1;
+
+  padding:14px;
+
+  border:none;
+
+  border-radius:16px;
+
+  background:
+    rgba(255,255,255,0.06);
+
+  color:white;
+
+  cursor:pointer;
+
+  transition:0.3s;
+
+}
+
+.chat-action-btn:hover{
+
+  transform:translateY(-2px);
+
+}
+
+.chat-action-btn.danger{
+
+  background:
+    rgba(255,0,80,0.15);
+
+}
+
+/* MOBILE */
+
+@media(max-width:900px){
+
+  .ai-layout{
+
+    grid-template-columns:1fr;
+
+  }
+
+  .ai-sidebar{
+
+    height:auto;
+
+  }
+
+  .chat-container{
+
+    height:500px;
+
+  }
+
+}
+
 </style>
 </head>
 
@@ -1408,17 +1692,82 @@ textarea{
       ✨ Generate Content
     </button>
 
-    <div class="output-box">
+<div class="ai-layout">
 
-  <div class="output-top">
+  <!-- SIDEBAR -->
 
-    <h3>Generated Content</h3>
+  <aside class="ai-sidebar">
 
-    <button id="copyBtn">
-      Copy
-    </button>
+    <div class="sidebar-top">
+
+      <h3>AI Memory</h3>
+
+      <p>
+        Nexora remembers
+        your recent prompts
+      </p>
+
+    </div>
+
+    <div id="memoryList" class="memory-list">
+
+      <div class="memory-empty">
+        No history yet
+      </div>
+
+    </div>
+
+  </aside>
+
+  <!-- CHAT AREA -->
+
+  <div class="ai-chat-area">
+
+    <!-- CHAT -->
+
+    <div id="chatContainer" class="chat-container">
+
+      <div class="ai-message">
+
+        <div class="message-top">
+          <span>✨ Nexora AI</span>
+        </div>
+
+        <div class="message-content">
+
+          Welcome to Nexora AI.
+
+          Generate high-converting
+          property marketing content
+          instantly.
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ACTIONS -->
+
+    <div class="chat-actions">
+
+      <button id="copyBtn" class="chat-action-btn">
+        Copy
+      </button>
+
+      <button id="regenBtn" class="chat-action-btn">
+        Regenerate
+      </button>
+
+      <button id="clearBtn" class="chat-action-btn danger">
+        Clear
+      </button>
+
+    </div>
 
   </div>
+
+</div>
 
   <!-- TABS -->
 
@@ -2020,6 +2369,11 @@ window.addEventListener(
 const generateBtn = document.getElementById('generateBtn');
 const copyBtn = document.getElementById('copyBtn');
 const tabContent = document.getElementById('tabContent');
+const chatContainer =
+  document.getElementById('chatContainer');
+
+const memoryList =
+  document.getElementById('memoryList');
 const aiThinking =
   document.getElementById('aiThinking');
 
@@ -2149,6 +2503,195 @@ function replaceTemplate(text, data){
     .replaceAll('{price}', data.price)
     .replaceAll('{promo}', data.promo)
     .replaceAll('{type}', data.type);
+
+}
+
+function addUserMessage(data){
+
+  const div =
+    document.createElement('div');
+
+  div.className =
+    'user-message';
+
+  div.innerHTML = `
+
+    <div class="message-top">
+      You
+    </div>
+
+    <div class="message-content">
+
+      Generate property content
+      for ${data.location}
+
+      • ${data.type}
+      • ${data.price}
+      • ${data.promo}
+
+    </div>
+
+  `;
+
+  chatContainer.appendChild(div);
+
+  scrollChat();
+
+}
+
+async function addAIMessage(text){
+
+  const div =
+    document.createElement('div');
+
+  div.className =
+    'ai-message';
+
+  div.innerHTML = `
+
+    <div class="message-top">
+      ✨ Nexora AI
+    </div>
+
+    <div class="message-content"></div>
+
+  `;
+
+  chatContainer.appendChild(div);
+
+  const content =
+    div.querySelector('.message-content');
+
+  const words =
+    text.split(' ');
+
+  for(const word of words){
+
+    content.innerHTML +=
+      word + ' ';
+
+    scrollChat();
+
+    await new Promise(r =>
+      setTimeout(
+        r,
+        20 + Math.random()*20
+      )
+    );
+
+  }
+
+}
+
+function scrollChat(){
+
+  chatContainer.scrollTop =
+    chatContainer.scrollHeight;
+
+}
+
+function saveMemory(data){
+
+  const memories =
+
+    JSON.parse(
+      localStorage.getItem(
+        'nexoraMemory'
+      )
+    ) || [];
+
+  memories.unshift(data);
+
+  localStorage.setItem(
+
+    'nexoraMemory',
+
+    JSON.stringify(
+      memories.slice(0,10)
+    )
+
+  );
+
+  renderMemory();
+
+}
+
+function renderMemory(){
+
+  const memories =
+
+    JSON.parse(
+      localStorage.getItem(
+        'nexoraMemory'
+      )
+    ) || [];
+
+  if(!memories.length){
+
+    memoryList.innerHTML = `
+      <div class="memory-empty">
+        No history yet
+      </div>
+    `;
+
+    return;
+
+  }
+
+  memoryList.innerHTML = '';
+
+  memories.forEach(memory => {
+
+    const div =
+      document.createElement('div');
+
+    div.className =
+      'memory-item';
+
+    div.innerHTML = `
+
+      <div class="memory-title">
+        ${memory.location}
+      </div>
+
+      <div class="memory-desc">
+
+        ${memory.type}<br>
+        ${memory.price}
+
+      </div>
+
+    `;
+
+    div.addEventListener('click', () => {
+
+      location.value =
+        memory.location;
+
+      type.value =
+        memory.type;
+
+      price.value =
+        memory.price;
+
+      promo.value =
+        memory.promo;
+
+      market.value =
+        memory.market;
+
+      tone.value =
+        memory.tone;
+
+      showToast(
+        '✨ Prompt restored'
+      );
+
+    });
+
+    memoryList.appendChild(div);
+
+  });
 
 }
 
@@ -2356,6 +2899,9 @@ generateBtn.addEventListener('click', async () => {
       document.getElementById('tone').value
 
   };
+  
+  addUserMessage(data);
+  saveMemory(data);
 
   generateBtn.disabled = true;
   const streamFX =
@@ -2487,9 +3033,9 @@ weekend ini 😊
     .querySelector('[data-tab="instagram"]')
     .classList.add('active');
 
-  streamResponse(
-    generatedData.instagram
-  );
+  await addAIMessage(
+  generatedData.instagram
+);
 
   clearInterval(streamFX);
   generateBtn.disabled = false;
@@ -2644,6 +3190,54 @@ function saveHistory(){
   );
 
 }
+
+document
+  .getElementById('regenBtn')
+  .addEventListener('click', () => {
+
+    generateBtn.click();
+
+});
+
+document
+  .getElementById('clearBtn')
+  .addEventListener('click', () => {
+
+    chatContainer.innerHTML = '';
+
+    showToast(
+      '🗑 Chat cleared'
+    );
+
+});
+
+document
+  .getElementById('copyBtn')
+  .addEventListener('click', () => {
+
+    const messages =
+
+      document.querySelectorAll(
+        '.ai-message .message-content'
+      );
+
+    if(!messages.length)
+      return;
+
+    const last =
+      messages[
+        messages.length - 1
+      ];
+
+    navigator.clipboard.writeText(
+      last.innerText
+    );
+
+    showToast(
+      '✅ Copied'
+    );
+
+});
 
 function scrollToOutput(){
 
@@ -4301,6 +4895,8 @@ async function removeProUser(uid){
   );
 
 }
+
+renderMemory();
 
 /* =========================================
    DEMO PRO ACCESS
