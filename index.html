@@ -1176,6 +1176,24 @@ textarea{
     inset 0 0 30px rgba(255,255,255,0.03);
 }
 
+.stream-cursor{
+
+  animation:blink 1s infinite;
+
+  color:#7B61FF;
+
+  font-weight:bold;
+
+}
+
+@keyframes blink{
+
+  50%{
+    opacity:0;
+  }
+
+}
+
 /* TYPING CURSOR */
 .typing-cursor::after{
   content:'|';
@@ -1299,6 +1317,16 @@ textarea{
     </div>
 
     <div class="form-grid">
+      
+      <div class="input-group">
+  <label>Language</label>
+
+  <select id="language">
+    <option value="id">Indonesia</option>
+    <option value="en">English</option>
+    <option value="mix">Mix Indo-English</option>
+  </select>
+</div>
 
       <div class="input-group">
         <label>Lokasi</label>
@@ -1960,12 +1988,18 @@ let currentTab = 'instagram';
 
 const hooks = [
   "Rumah dekat {location} cuma {price}?! 😱",
-  "Belum banyak yang tahu ada hunian strategis di {location}",
-  "Harga segini di {location} masih dapat rumah modern?",
-  "Karyawan muda wajib tahu promo rumah ini 👀",
-  "Baru launching! Rumah impian mulai {price}",
-  "Bisa punya rumah tanpa ribet di {location}",
-  "Promo terbatas untuk unit terbaik minggu ini 🔥"
+  "POV: akhirnya bisa punya rumah dekat {location} 😭",p
+  "Rumah modern di {location} mulai {price}? ini serius?! 😳",
+  "Karyawan muda sekarang bisa punya rumah sendiri 🔥",
+  "Baru sadar ternyata cicilan rumah bisa seringan ini 👀",
+  "Daripada ngontrak terus, mending cicil rumah sendiri 🏡",
+  "Rumah aesthetic dekat {location} sekarang lagi promo besar",
+  "Yang belum punya rumah wajib tahu info ini 🚨",
+  "Cluster paling dicari di {location} sekarang buka promo",
+  "Harga rumah belum naik, ini waktu terbaik ambil unit",
+  "POV: weekend survey rumah impian sendiri ✨",
+  "Orang-orang mulai rebutan unit di {location}",
+  "Banyak yang nyesel telat ambil rumah tahun lalu 😵"
 ];
 
 const ctas = [
@@ -2016,6 +2050,67 @@ const benefits = [
 
 const emojis = ["🔥","✨","😱","🏡","🚀","💯"];
 
+const languagePack = {
+
+  id: {
+
+    survey:
+      "Jadwalkan survey sekarang",
+
+    closing:
+      "Unit terbatas sebelum harga naik",
+
+    greeting:
+      "Halo kak 👋",
+
+    cta:
+      "DM sekarang untuk info lengkap",
+
+    urgent:
+      "Promo terbatas minggu ini"
+
+  },
+
+  en: {
+
+    survey:
+      "Schedule your site visit today",
+
+    closing:
+      "Limited units before price increase",
+
+    greeting:
+      "Hello 👋",
+
+    cta:
+      "DM now for full information",
+
+    urgent:
+      "Limited promotion this week"
+
+  },
+
+  mix: {
+
+    survey:
+      "Schedule survey sekarang",
+
+    closing:
+      "Limited unit sebelum price naik",
+
+    greeting:
+      "Halo kak 👋",
+
+    cta:
+      "DM sekarang for full info",
+
+    urgent:
+      "Promo limited minggu ini"
+
+  }
+
+};
+
 /* =========================================
    HELPERS
 ========================================= */
@@ -2042,32 +2137,41 @@ async function typeWriter(text){
 
   tabContent.innerHTML = '';
 
-  let i = 0;
+  const words = text.split(' ');
 
-  return new Promise(resolve => {
+  for(let i=0; i<words.length; i++){
 
-    const typing = setInterval(() => {
+    tabContent.innerHTML +=
+      words[i] + ' ';
 
-      tabContent.innerHTML += text.charAt(i);
+    /* CURSOR EFFECT */
 
-      i++;
+    tabContent.innerHTML =
+      tabContent.innerHTML +
+      '<span class="stream-cursor">|</span>';
 
-      /* AUTO SCROLL OUTPUT */
+    /* AUTO SCROLL */
 
-      tabContent.scrollTop =
-        tabContent.scrollHeight;
+    tabContent.scrollTop =
+      tabContent.scrollHeight;
 
-      if(i >= text.length){
+    await new Promise(resolve =>
+      setTimeout(
+        resolve,
+        20 + Math.random()*25
+      )
+    );
 
-        clearInterval(typing);
+    /* REMOVE OLD CURSOR */
 
-        resolve();
+    const cursor =
+      document.querySelector('.stream-cursor');
 
-      }
+    if(cursor){
+      cursor.remove();
+    }
 
-    }, 6);
-
-  });
+  }
 
 }
 
@@ -2075,12 +2179,13 @@ function loadingSteps(){
 
   return new Promise(resolve => {
 
-    const steps = [
-      "🔍 Analyzing property market...",
-      "🧠 Creating viral hooks...",
-      "✨ Generating emotional CTA...",
-      "🚀 Optimizing conversion copy..."
-    ];
+ const steps = [
+  "🧠 AI analyzing market psychology...",
+  "📈 Detecting viral property trends...",
+  "🔥 Creating high-converting hooks...",
+  "✨ Optimizing emotional persuasion...",
+  "🚀 Generating GPT marketing response..."
+];
 
     let index = 0;
 
@@ -2145,6 +2250,8 @@ generateBtn.addEventListener('click', async () => {
   navigator.vibrate?.(30);
 
   const data = {
+    language:
+      document.getElementById('language').value
 
     location:
       document.getElementById('location').value || 'BSD',
@@ -2187,6 +2294,9 @@ generateBtn.addEventListener('click', async () => {
 
   const emoji =
     random(emojis);
+  
+  const lang =
+    languagePack[data.language];
 
   /* TONE ENGINE */
 
@@ -2229,27 +2339,21 @@ generatedData.instagram = `
 
 ${emoji} ${hook1}
 
-Punya rumah sendiri di ${data.location}
-sekarang bukan cuma impian.
+Hunian ${emotion}
+di ${data.location}
+mulai ${data.price}
 
-Hunian ${emotion} dengan konsep modern
-${data.type}
-mulai ${data.price}.
+🏡 ${data.type}
+🎁 ${data.promo}
 
-✨ Cocok untuk ${data.market}
 ✨ ${benefit}
-✨ Promo ${data.promo}
+✨ cocok untuk ${data.market}
 
-Buat kamu yang:
-• ${pain}
-• cari rumah ${power}
-• ingin hunian nyaman & strategis
-
-Sekarang saat terbaik untuk mulai punya rumah sendiri sebelum harga naik lagi.
+${lang.urgent}
 
 ${cta}
 
-📩 DM sekarang untuk price list & jadwal survey.
+${lang.cta}
 `;
 
 generatedData.tiktok = `
@@ -2292,27 +2396,23 @@ Klik sekarang untuk konsultasi & survey lokasi.
 
 generatedData.whatsapp = `
 
-Halo kak 👋
+${lang.greeting}
 
 Untuk unit di ${data.location}
-masih available ya 😊
+masih available 😊
 
-Saat ini ada promo:
-🎁 ${data.promo}
-
-Spesifikasi:
 🏡 ${data.type}
-💰 Mulai ${data.price}
+💰 ${data.price}
+
+Promo:
+🎁 ${data.promo}
 
 Keunggulan:
 ✨ ${benefit}
-✨ lingkungan nyaman
 ✨ akses strategis
+✨ lingkungan nyaman
 
-Cocok banget untuk ${data.market}
-
-Kalau kakak berkenan,
-boleh saya bantu jadwalkan survey lokasi minggu ini 🙌
+${lang.survey}
 `;
 
   currentTab = 'instagram';
@@ -2328,6 +2428,42 @@ boleh saya bantu jadwalkan survey lokasi minggu ini 🙌
   typeWriter(
     generatedData.instagram
   );
+  
+  setTimeout(async () => {
+
+  document
+    .querySelector('[data-tab="tiktok"]')
+    .click();
+
+  await typeWriter(
+    generatedData.tiktok
+  );
+
+}, 3500);
+
+setTimeout(async () => {
+
+  document
+    .querySelector('[data-tab="meta"]')
+    .click();
+
+  await typeWriter(
+    generatedData.meta
+  );
+
+}, 7000);
+
+setTimeout(async () => {
+
+  document
+    .querySelector('[data-tab="whatsapp"]')
+    .click();
+
+  await typeWriter(
+    generatedData.whatsapp
+  );
+
+}, 10500);
 
   generateBtn.disabled = false;
 
