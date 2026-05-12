@@ -1232,6 +1232,59 @@ textarea{
 
 }
 
+.chat-actions{
+  display:flex;
+  gap:10px;
+}
+
+.action-btn{
+  border:none;
+  padding:10px 16px;
+  border-radius:14px;
+  background:rgba(255,255,255,0.06);
+  color:white;
+  cursor:pointer;
+  transition:0.25s;
+  font-weight:600;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.action-btn:hover{
+  transform:translateY(-2px);
+  background:rgba(255,255,255,0.12);
+}
+
+.clear-btn{
+  background:rgba(255,80,80,0.08);
+}
+
+.clear-btn:hover{
+  background:rgba(255,80,80,0.18);
+}
+
+/* SMOOTH CHAT SCROLL */
+
+.chat-content{
+  scroll-behavior:smooth;
+}
+
+/* CUSTOM SCROLLBAR */
+
+.chat-content::-webkit-scrollbar{
+  width:8px;
+}
+
+.chat-content::-webkit-scrollbar-track{
+  background:transparent;
+}
+
+.chat-content::-webkit-scrollbar-thumb{
+  background:rgba(255,255,255,0.12);
+  border-radius:999px;
+}
+
 .copy-modern:hover{
 
   transform:translateY(-2px);
@@ -1404,10 +1457,6 @@ textarea{
 
     <h3>Generated Content</h3>
 
-    <button id="copyBtn">
-      Copy
-    </button>
-
   </div>
 
   <!-- TABS -->
@@ -1436,17 +1485,25 @@ textarea{
 
 <div class="chatgpt-box">
 
-  <div class="chat-top">
+<div class="chat-top">
 
-    <div class="ai-label">
-      ✨ Nexora AI
-    </div>
+  <div class="ai-label">
+    ✨ Nexora AI
+  </div>
 
-    <button id="copyBtn" class="copy-modern">
-      Copy
+  <div class="chat-actions">
+
+    <button id="clearChatBtn" class="action-btn clear-btn">
+      🗑 Clear
+    </button>
+
+    <button id="copyChatBtn" class="action-btn">
+      📋 Copy
     </button>
 
   </div>
+
+</div>
 
   <div id="tabContent" class="chat-content">
     Your AI content will appear here...
@@ -2008,7 +2065,11 @@ window.addEventListener(
 ========================================= */
 
 const generateBtn = document.getElementById('generateBtn');
-const copyBtn = document.getElementById('copyBtn');
+const copyBtn =
+  document.getElementById('copyChatBtn');
+
+const clearChatBtn =
+  document.getElementById('clearChatBtn');
 const tabContent = document.getElementById('tabContent');
 
 const tabButtons =
@@ -2081,7 +2142,11 @@ function replaceTemplate(text, data){
 
 }
 
+let typingInterval;
+
 function typeWriter(text){
+
+  clearInterval(typingInterval);
 
   tabContent.innerHTML = '';
 
@@ -2089,26 +2154,29 @@ function typeWriter(text){
 
   const speed = 10;
 
-  const typing = setInterval(() => {
+  typingInterval = setInterval(() => {
 
-    tabContent.innerHTML =   text.substring(0, i)     .replace(/\n/g, '<br>');
+    tabContent.innerHTML =
+      text
+      .substring(0, i)
+      .replace(/\n/g, '<br>');
 
     i++;
 
-    /* AUTO SCROLL FOLLOW */
+    /* CHAT AUTO SCROLL */
 
-    tabContent.scrollTop =
-      tabContent.scrollHeight;
+    requestAnimationFrame(() => {
 
-    window.scrollTo({
-      top:
-        document.body.scrollHeight,
-      behavior:'smooth'
+      tabContent.scrollTop =
+        tabContent.scrollHeight;
+
     });
 
-    if(i >= text.length){
+    /* STOP */
 
-      clearInterval(typing);
+    if(i > text.length){
+
+      clearInterval(typingInterval);
 
     }
 
@@ -2447,21 +2515,66 @@ presetButtons.forEach(btn => {
    COPY TOAST
 ========================================= */
 
-copyBtn.addEventListener('click', () => {
+copyBtn.addEventListener('click', async () => {
 
-  navigator.clipboard.writeText(
-    generatedData[currentTab]
+  const text =
+    generatedData[currentTab];
+
+  if(!text){
+
+    showToast('⚠️ No content');
+
+    return;
+
+  }
+
+  try{
+
+    await navigator.clipboard.writeText(text);
+
+    copyBtn.innerHTML =
+      '✅ Copied';
+
+    showToast(
+      '✅ Content copied'
+    );
+
+    setTimeout(() => {
+
+      copyBtn.innerHTML =
+        '📋 Copy';
+
+    }, 1800);
+
+  } catch(err){
+
+    showToast(
+      '❌ Copy failed'
+    );
+
+  }
+
+});
+
+clearChatBtn.addEventListener('click', () => {
+
+  generatedData[currentTab] = '';
+
+  tabContent.innerHTML = `
+    <div style="
+      opacity:.6;
+      text-align:center;
+      padding:40px 20px;
+    ">
+      Chat cleared ✨
+    </div>
+  `;
+
+  navigator.vibrate?.(20);
+
+  showToast(
+    '🗑 Chat cleared'
   );
-
-  copyBtn.innerHTML = '✅ Copied';
-
-  showToast('✅ Content copied');
-
-  setTimeout(() => {
-
-    copyBtn.innerHTML = 'Copy';
-
-  }, 2000);
 
 });
 
