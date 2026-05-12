@@ -19,16 +19,9 @@
 
 body{
   font-family:'Plus Jakarta Sans',sans-serif;
+  background:#0F1117;
   color:white;
   overflow-x:hidden;
-  background:
-radial-gradient(circle at top left,
-rgba(123,97,255,0.15),
-transparent 30%),
-radial-gradient(circle at bottom right,
-rgba(0,194,255,0.12),
-transparent 30%),
-#0F1117;
 }
 
 /* BACKGROUND */
@@ -1164,48 +1157,6 @@ textarea{
 
 }
 
-.tab-content{
-  scroll-behavior:smooth;
-  background:
-    linear-gradient(
-      180deg,
-      rgba(255,255,255,0.06),
-      rgba(255,255,255,0.03)
-    );
-  box-shadow:
-    inset 0 0 30px rgba(255,255,255,0.03);
-}
-
-.stream-cursor{
-
-  animation:blink 1s infinite;
-
-  color:#7B61FF;
-
-  font-weight:bold;
-
-}
-
-@keyframes blink{
-
-  50%{
-    opacity:0;
-  }
-
-}
-
-/* TYPING CURSOR */
-.typing-cursor::after{
-  content:'|';
-  animation:blink 1s infinite;
-}
-
-@keyframes blink{
-  50%{
-    opacity:0;
-  }
-}
-
 /* MOBILE */
 
 @media(max-width:768px){
@@ -1221,6 +1172,92 @@ textarea{
   .hero-buttons{
     flex-direction:column;
   }
+
+}
+
+.chatgpt-box{
+
+  background:#111827;
+  border:1px solid rgba(255,255,255,0.08);
+
+  border-radius:24px;
+
+  overflow:hidden;
+
+  margin-top:20px;
+
+}
+
+.chat-top{
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  padding:18px 20px;
+
+  border-bottom:
+    1px solid rgba(255,255,255,0.06);
+
+  background:
+    rgba(255,255,255,0.03);
+
+}
+
+.ai-label{
+
+  font-weight:700;
+
+  display:flex;
+  align-items:center;
+  gap:10px;
+
+}
+
+.copy-modern{
+
+  border:none;
+  padding:10px 16px;
+
+  border-radius:14px;
+
+  background:
+    rgba(255,255,255,0.06);
+
+  color:white;
+
+  cursor:pointer;
+
+  transition:0.3s;
+
+}
+
+.copy-modern:hover{
+
+  transform:translateY(-2px);
+
+  background:
+    rgba(255,255,255,0.1);
+
+}
+
+.chat-content{
+
+  padding:26px;
+
+  line-height:1.9;
+
+  color:#E5E7EB;
+
+  min-height:340px;
+
+  white-space:pre-wrap;
+
+  overflow-y:auto;
+
+  max-height:520px;
+
+  font-size:15px;
 
 }
 
@@ -1317,16 +1354,6 @@ textarea{
     </div>
 
     <div class="form-grid">
-      
-      <div class="input-group">
-  <label>Language</label>
-
-  <select id="language">
-    <option value="id">Indonesia</option>
-    <option value="en">English</option>
-    <option value="mix">Mix Indo-English</option>
-  </select>
-</div>
 
       <div class="input-group">
         <label>Lokasi</label>
@@ -1407,9 +1434,25 @@ textarea{
 
   <!-- OUTPUT -->
 
-  <div id="tabContent" class="tab-content">
+<div class="chatgpt-box">
+
+  <div class="chat-top">
+
+    <div class="ai-label">
+      ✨ Nexora AI
+    </div>
+
+    <button id="copyBtn" class="copy-modern">
+      Copy
+    </button>
+
+  </div>
+
+  <div id="tabContent" class="chat-content">
     Your AI content will appear here...
   </div>
+
+</div>
 
 </div>
 
@@ -1857,13 +1900,13 @@ onAuthStateChanged(auth, async user => {
         uid:uid,
 
         plan:
-          window.userData?.plan || 'FREE',
+          userData?.plan || 'FREE',
 
         expires:
           userData?.expires || null,
 
         generations:
-          window.usageData?.count || 0,
+          usageData?.count || 0,
 
         online:true,
 
@@ -1988,18 +2031,12 @@ let currentTab = 'instagram';
 
 const hooks = [
   "Rumah dekat {location} cuma {price}?! 😱",
-  "POV: akhirnya bisa punya rumah dekat {location} 😭",p
-  "Rumah modern di {location} mulai {price}? ini serius?! 😳",
-  "Karyawan muda sekarang bisa punya rumah sendiri 🔥",
-  "Baru sadar ternyata cicilan rumah bisa seringan ini 👀",
-  "Daripada ngontrak terus, mending cicil rumah sendiri 🏡",
-  "Rumah aesthetic dekat {location} sekarang lagi promo besar",
-  "Yang belum punya rumah wajib tahu info ini 🚨",
-  "Cluster paling dicari di {location} sekarang buka promo",
-  "Harga rumah belum naik, ini waktu terbaik ambil unit",
-  "POV: weekend survey rumah impian sendiri ✨",
-  "Orang-orang mulai rebutan unit di {location}",
-  "Banyak yang nyesel telat ambil rumah tahun lalu 😵"
+  "Belum banyak yang tahu ada hunian strategis di {location}",
+  "Harga segini di {location} masih dapat rumah modern?",
+  "Karyawan muda wajib tahu promo rumah ini 👀",
+  "Baru launching! Rumah impian mulai {price}",
+  "Bisa punya rumah tanpa ribet di {location}",
+  "Promo terbatas untuk unit terbaik minggu ini 🔥"
 ];
 
 const ctas = [
@@ -2020,96 +2057,7 @@ const emotions = [
   "elegan"
 ];
 
-const powerWords = [
-  "super strategis",
-  "best seller",
-  "paling dicari",
-  "anti ribet",
-  "siap huni",
-  "future investment",
-  "akses premium",
-  "value tinggi"
-];
-
-const painPoints = [
-  "capek ngontrak tiap tahun",
-  "bingung cari rumah strategis",
-  "takut harga rumah terus naik",
-  "ingin punya rumah dekat tempat kerja",
-  "mau cicilan ringan"
-];
-
-const benefits = [
-  "akses dekat tol",
-  "dekat stasiun",
-  "lingkungan nyaman",
-  "cocok untuk keluarga muda",
-  "investasi jangka panjang",
-  "nilai properti terus naik"
-];
-
 const emojis = ["🔥","✨","😱","🏡","🚀","💯"];
-
-const languagePack = {
-
-  id: {
-
-    survey:
-      "Jadwalkan survey sekarang",
-
-    closing:
-      "Unit terbatas sebelum harga naik",
-
-    greeting:
-      "Halo kak 👋",
-
-    cta:
-      "DM sekarang untuk info lengkap",
-
-    urgent:
-      "Promo terbatas minggu ini"
-
-  },
-
-  en: {
-
-    survey:
-      "Schedule your site visit today",
-
-    closing:
-      "Limited units before price increase",
-
-    greeting:
-      "Hello 👋",
-
-    cta:
-      "DM now for full information",
-
-    urgent:
-      "Limited promotion this week"
-
-  },
-
-  mix: {
-
-    survey:
-      "Schedule survey sekarang",
-
-    closing:
-      "Limited unit sebelum price naik",
-
-    greeting:
-      "Halo kak 👋",
-
-    cta:
-      "DM sekarang for full info",
-
-    urgent:
-      "Promo limited minggu ini"
-
-  }
-
-};
 
 /* =========================================
    HELPERS
@@ -2133,45 +2081,38 @@ function replaceTemplate(text, data){
 
 }
 
-async function typeWriter(text){
+function typeWriter(text){
 
   tabContent.innerHTML = '';
 
-  const words = text.split(' ');
+  let i = 0;
 
-  for(let i=0; i<words.length; i++){
+  const speed = 10;
 
-    tabContent.innerHTML +=
-      words[i] + ' ';
+  const typing = setInterval(() => {
 
-    /* CURSOR EFFECT */
+    tabContent.innerHTML =   text.substring(0, i)     .replace(/\n/g, '<br>');
 
-    tabContent.innerHTML =
-      tabContent.innerHTML +
-      '<span class="stream-cursor">|</span>';
+    i++;
 
-    /* AUTO SCROLL */
+    /* AUTO SCROLL FOLLOW */
 
     tabContent.scrollTop =
       tabContent.scrollHeight;
 
-    await new Promise(resolve =>
-      setTimeout(
-        resolve,
-        20 + Math.random()*25
-      )
-    );
+    window.scrollTo({
+      top:
+        document.body.scrollHeight,
+      behavior:'smooth'
+    });
 
-    /* REMOVE OLD CURSOR */
+    if(i >= text.length){
 
-    const cursor =
-      document.querySelector('.stream-cursor');
+      clearInterval(typing);
 
-    if(cursor){
-      cursor.remove();
     }
 
-  }
+  }, speed);
 
 }
 
@@ -2179,13 +2120,12 @@ function loadingSteps(){
 
   return new Promise(resolve => {
 
- const steps = [
-  "🧠 AI analyzing market psychology...",
-  "📈 Detecting viral property trends...",
-  "🔥 Creating high-converting hooks...",
-  "✨ Optimizing emotional persuasion...",
-  "🚀 Generating GPT marketing response..."
-];
+    const steps = [
+      "🔍 Analyzing property market...",
+      "🧠 Creating viral hooks...",
+      "✨ Generating emotional CTA...",
+      "🚀 Optimizing conversion copy..."
+    ];
 
     let index = 0;
 
@@ -2250,8 +2190,6 @@ generateBtn.addEventListener('click', async () => {
   navigator.vibrate?.(30);
 
   const data = {
-    language:
-      document.getElementById('language').value
 
     location:
       document.getElementById('location').value || 'BSD',
@@ -2276,7 +2214,7 @@ generateBtn.addEventListener('click', async () => {
   generateBtn.disabled = true;
 
   generateBtn.innerHTML =
-    '🧠 Nexora AI analyzing market psychology...';
+    '✨ Nexora AI is thinking...';
 
   await loadingSteps();
 
@@ -2294,9 +2232,6 @@ generateBtn.addEventListener('click', async () => {
 
   const emoji =
     random(emojis);
-  
-  const lang =
-    languagePack[data.language];
 
   /* TONE ENGINE */
 
@@ -2326,93 +2261,84 @@ generateBtn.addEventListener('click', async () => {
 
   /* OUTPUT */
 
-const pain =
-  random(painPoints);
-
-const benefit =
-  random(benefits);
-
-const power =
-  random(powerWords);
-
 generatedData.instagram = `
-
 ${emoji} ${hook1}
 
-Hunian ${emotion}
-di ${data.location}
-mulai ${data.price}
+Bayangin pulang kerja langsung sampai ke rumah nyaman di ${data.location} tanpa harus kena macet panjang setiap hari.
 
-🏡 ${data.type}
-🎁 ${data.promo}
+Hunian ${emotion} ini hadir dengan konsep modern untuk ${data.market}.
 
-✨ ${benefit}
-✨ cocok untuk ${data.market}
+✨ ${data.type}
+✨ Mulai ${data.price}
+✨ Promo ${data.promo}
+✨ Lokasi strategis dekat fasilitas umum
+✨ Cocok untuk investasi maupun tempat tinggal
 
-${lang.urgent}
+${intro}
+
+🔥 Kenapa banyak yang mulai pilih area ${data.location}?
+Karena akses makin berkembang dan value property terus naik setiap tahun.
 
 ${cta}
 
-${lang.cta}
+📩 Chat sekarang sebelum unit terbaik habis.
 `;
 
 generatedData.tiktok = `
-
 ${hook1}
 
-Masih ngontrak?
-Harga rumah makin naik tiap tahun 😵
+POV:
+kamu akhirnya punya rumah sendiri
+di usia muda 😭🏡
 
-Sekarang ada hunian ${emotion}
-di ${data.location}
+✨ ${data.type}
+✨ ${data.price}
+✨ ${data.promo}
 
-🏡 ${data.type}
-💰 Mulai ${data.price}
-🎁 ${data.promo}
+lokasi strategis di ${data.location}
 
-${benefit}
+cocok buat:
+✔ pasangan muda
+✔ karyawan
+✔ investasi
 
-Cocok banget buat ${data.market}
+${hook2}
 
 ${cta}
 `;
 
 generatedData.meta = `
+🔥 Rumah Modern di ${data.location}
 
-🏡 Hunian Modern di ${data.location}
+Punya rumah sekarang gak harus mahal.
 
-Miliki rumah ${emotion}
-dengan harga mulai ${data.price}
+Mulai ${data.price}, kamu sudah bisa dapat:
 
 ✅ ${data.type}
-✅ ${benefit}
-✅ Promo ${data.promo}
+✅ ${data.promo}
+✅ Lokasi strategis
 ✅ Cocok untuk ${data.market}
 
-Jangan tunggu harga naik lagi.
+Unit terbatas dan promo bisa berakhir kapan saja.
 
-Klik sekarang untuk konsultasi & survey lokasi.
+Klik sekarang untuk cek lokasi & jadwalkan survey gratis 👇
 `;
 
 generatedData.whatsapp = `
+Halo kak 👋
 
-${lang.greeting}
+Terima kasih sudah tertarik dengan unit di ${data.location} 😊
 
-Untuk unit di ${data.location}
-masih available 😊
+Saat ini masih tersedia rumah ${data.type} mulai ${data.price} dengan promo ${data.promo}.
 
-🏡 ${data.type}
-💰 ${data.price}
+Banyak juga customer yang ambil unit ini karena:
+✔ lokasi strategis
+✔ akses mudah
+✔ cocok untuk investasi & tempat tinggal
 
-Promo:
-🎁 ${data.promo}
+Kalau kakak berkenan, saya bisa bantu jadwalkan survey weekend ini 🙌
 
-Keunggulan:
-✨ ${benefit}
-✨ akses strategis
-✨ lingkungan nyaman
-
-${lang.survey}
+Siapa tahu cocok langsung pilih unit terbaik sebelum habis 😊
 `;
 
   currentTab = 'instagram';
@@ -2428,42 +2354,6 @@ ${lang.survey}
   typeWriter(
     generatedData.instagram
   );
-  
-  setTimeout(async () => {
-
-  document
-    .querySelector('[data-tab="tiktok"]')
-    .click();
-
-  await typeWriter(
-    generatedData.tiktok
-  );
-
-}, 3500);
-
-setTimeout(async () => {
-
-  document
-    .querySelector('[data-tab="meta"]')
-    .click();
-
-  await typeWriter(
-    generatedData.meta
-  );
-
-}, 7000);
-
-setTimeout(async () => {
-
-  document
-    .querySelector('[data-tab="whatsapp"]')
-    .click();
-
-  await typeWriter(
-    generatedData.whatsapp
-  );
-
-}, 10500);
 
   generateBtn.disabled = false;
 
@@ -2604,18 +2494,7 @@ const oldGenerate =
   generateBtn.onclick;
 
 generateBtn.addEventListener('click', () => {
-
-  setTimeout(() => {
-
     saveHistory();
-
-    window.scrollTo({
-      top:
-        document.body.scrollHeight,
-      behavior:'smooth'
-    });
-
-  }, 5000);
 
 });
 
@@ -2672,13 +2551,10 @@ demoBtn.addEventListener('click', async () => {
   navigator.vibrate?.(30);
 
   generatorSection.scrollIntoView({
-    behavior:'smooth',
-    block:'start'
+    behavior:'smooth'
   });
 
-  await new Promise(r => setTimeout(r, 1200));
-
-  /* AUTO FILL */
+  /* AUTO FILL DEMO */
 
   document.getElementById('location').value =
     'BSD City';
@@ -2690,7 +2566,7 @@ demoBtn.addEventListener('click', async () => {
     '850 Jutaan';
 
   document.getElementById('promo').value =
-    'Free Furnished + Smart Door Lock';
+    'Free Furnished + Tanpa DP';
 
   document.getElementById('market').value =
     'Pasangan Muda & Karyawan';
@@ -2698,42 +2574,27 @@ demoBtn.addEventListener('click', async () => {
   document.getElementById('tone').value =
     'Luxury';
 
-  /* INPUT ANIMATION */
+  /* GLOW EFFECT */
 
-  const inputs =
-    document.querySelectorAll('input, select');
-
-  inputs.forEach((input, index) => {
-
-    setTimeout(() => {
-
-      input.classList.add('focus-glow');
-
-      setTimeout(() => {
-
-        input.classList.remove('focus-glow');
-
-      }, 800);
-
-    }, index * 120);
-
-  });
-
-  await new Promise(r => setTimeout(r, 1200));
-
-  generateBtn.click();
-
-  /* AUTO SCROLL TO OUTPUT */
+  document
+    .querySelector('.generator-card')
+    .classList.add('focus-glow');
 
   setTimeout(() => {
 
-    document.querySelector('.output-box')
-      .scrollIntoView({
-        behavior:'smooth',
-        block:'start'
-      });
+    document
+      .querySelector('.generator-card')
+      .classList.remove('focus-glow');
 
-  }, 2500);
+  }, 1500);
+
+  /* AUTO GENERATE */
+
+  setTimeout(() => {
+
+    generateBtn.click();
+
+  }, 900);
 
 });
 
@@ -3921,19 +3782,6 @@ window.addEventListener(
 );
 
 /* WAIT FIREBASE */
-
-const firebaseInterval =
-  setInterval(() => {
-
-  if(window.firebaseReady){
-
-    clearInterval(firebaseInterval);
-
-    loadCodes();
-
-  }
-
-}, 300);
 
 /* =========================================
    REALTIME USERS DATABASE
