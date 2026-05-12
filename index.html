@@ -1314,6 +1314,296 @@ textarea{
 
 }
 
+/* =========================================
+   CHATGPT PREMIUM UI
+========================================= */
+
+.chatgpt-box{
+
+  position:relative;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.08),
+      rgba(255,255,255,0.03)
+    );
+
+  border:
+    1px solid rgba(255,255,255,0.08);
+
+  backdrop-filter:
+    blur(24px);
+
+  border-radius:28px;
+
+  overflow:hidden;
+
+  box-shadow:
+    0 10px 40px rgba(0,0,0,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+
+}
+
+/* AMBIENT GLOW */
+
+.chatgpt-box::before{
+
+  content:'';
+
+  position:absolute;
+
+  inset:-1px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(123,97,255,0.2),
+      rgba(0,194,255,0.12),
+      transparent
+    );
+
+  z-index:-1;
+
+  filter:blur(40px);
+
+}
+
+/* CHAT AREA */
+
+.chat-content{
+
+  padding:24px;
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:18px;
+
+  min-height:400px;
+
+  max-height:600px;
+
+  overflow-y:auto;
+
+  scroll-behavior:smooth;
+
+}
+
+/* MESSAGE */
+
+.message{
+
+  display:flex;
+
+  gap:14px;
+
+  align-items:flex-start;
+
+  animation:messageUp .3s ease;
+
+}
+
+@keyframes messageUp{
+
+  from{
+    opacity:0;
+    transform:translateY(10px);
+  }
+
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+
+}
+
+/* AVATAR */
+
+.avatar{
+
+  width:42px;
+  height:42px;
+
+  border-radius:14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #7B61FF,
+      #00C2FF
+    );
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-size:18px;
+
+  flex-shrink:0;
+
+}
+
+/* BUBBLE */
+
+.bubble{
+
+  padding:18px 20px;
+
+  border-radius:22px;
+
+  line-height:1.9;
+
+  font-size:15px;
+
+  white-space:pre-wrap;
+
+  max-width:85%;
+
+  position:relative;
+
+}
+
+/* AI */
+
+.ai-bubble{
+
+  background:
+    rgba(255,255,255,0.06);
+
+  border:
+    1px solid rgba(255,255,255,0.06);
+
+  color:#E5E7EB;
+
+  border-top-left-radius:8px;
+
+  backdrop-filter:blur(12px);
+
+}
+
+/* USER */
+
+.user-message{
+
+  justify-content:flex-end;
+
+}
+
+.user-bubble{
+
+  background:
+    linear-gradient(
+      135deg,
+      #7B61FF,
+      #00C2FF
+    );
+
+  color:white;
+
+  border-bottom-right-radius:8px;
+
+}
+
+/* SUGGESTION CHIPS */
+
+.suggestion-bar{
+
+  display:flex;
+
+  gap:10px;
+
+  padding:18px;
+
+  border-top:
+    1px solid rgba(255,255,255,0.06);
+
+  overflow-x:auto;
+
+}
+
+.suggestion-bar::-webkit-scrollbar{
+  display:none;
+}
+
+.chip-btn{
+
+  border:none;
+
+  padding:12px 16px;
+
+  border-radius:999px;
+
+  background:
+    rgba(255,255,255,0.06);
+
+  color:white;
+
+  cursor:pointer;
+
+  white-space:nowrap;
+
+  transition:0.25s;
+
+  font-weight:600;
+
+}
+
+.chip-btn:hover{
+
+  transform:translateY(-2px);
+
+  background:
+    linear-gradient(
+      135deg,
+      #7B61FF,
+      #00C2FF
+    );
+
+}
+
+/* NOISE EFFECT */
+
+.chatgpt-box::after{
+
+  content:'';
+
+  position:absolute;
+
+  inset:0;
+
+  opacity:.03;
+
+  pointer-events:none;
+
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='white'%3E%3Ccircle cx='3' cy='3' r='2'/%3E%3C/g%3E%3C/svg%3E");
+
+}
+
+.typing-cursor{
+
+  animation:blink 0.8s infinite;
+
+  color:#8B5CF6;
+
+  font-weight:bold;
+
+}
+
+@keyframes blink{
+
+  0%,50%{
+    opacity:1;
+  }
+
+  51%,100%{
+    opacity:0;
+  }
+
+}
+
 </style>
 </head>
 
@@ -1485,28 +1775,72 @@ textarea{
 
 <div class="chatgpt-box">
 
-<div class="chat-top">
+  <!-- HEADER -->
 
-  <div class="ai-label">
-    ✨ Nexora AI
+  <div class="chat-top">
+
+    <div class="ai-label">
+      ✨ Nexora AI
+    </div>
+
+    <div class="chat-actions">
+
+      <button id="clearChatBtn" class="action-btn clear-btn">
+        🗑 Clear
+      </button>
+
+      <button id="copyChatBtn" class="action-btn">
+        📋 Copy
+      </button>
+
+    </div>
+
   </div>
 
-  <div class="chat-actions">
-
-    <button id="clearChatBtn" class="action-btn clear-btn">
-      🗑 Clear
-    </button>
-
-    <button id="copyChatBtn" class="action-btn">
-      📋 Copy
-    </button>
-
-  </div>
-
-</div>
+  <!-- CHAT AREA -->
 
   <div id="tabContent" class="chat-content">
-    Your AI content will appear here...
+
+    <div class="message ai-message">
+
+      <div class="avatar">
+        ✨
+      </div>
+
+      <div class="bubble ai-bubble">
+
+        Welcome to Nexora AI 🚀
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- SUGGESTION CHIPS -->
+
+  <div class="suggestion-bar">
+
+    <button class="chip-btn">
+      More Luxury
+    </button>
+
+    <button class="chip-btn">
+      Hard Selling
+    </button>
+
+    <button class="chip-btn">
+      Shorter
+    </button>
+
+    <button class="chip-btn">
+      Add CTA
+    </button>
+
+    <button class="chip-btn">
+      Make Viral
+    </button>
+
   </div>
 
 </div>
@@ -2074,6 +2408,88 @@ const tabContent = document.getElementById('tabContent');
 
 const tabButtons =
   document.querySelectorAll('.tab-btn');
+  
+  /* =========================================
+   AI CHIPS
+========================================= */
+
+const chipButtons =
+  document.querySelectorAll('.chip-btn');
+
+chipButtons.forEach(btn => {
+
+  btn.addEventListener('click', () => {
+
+    const action =
+      btn.innerText;
+
+    let current =
+      generatedData[currentTab];
+
+    if(!current){
+
+      showToast(
+        '⚠️ Generate content first'
+      );
+
+      return;
+
+    }
+
+    if(action === 'More Luxury'){
+
+      current += `
+
+✨ Hunian eksklusif dengan value investasi tinggi dan desain premium modern.`;
+
+    }
+
+    if(action === 'Hard Selling'){
+
+      current += `
+
+🔥 Promo terbatas hari ini. Booking sekarang sebelum harga naik!`;
+
+    }
+
+    if(action === 'Shorter'){
+
+      current =
+        current
+          .split('.')
+          .slice(0,3)
+          .join('.') + '.';
+
+    }
+
+    if(action === 'Add CTA'){
+
+      current += `
+
+📩 Chat sekarang untuk cek unit terbaik.`;
+
+    }
+
+    if(action === 'Make Viral'){
+
+      current += `
+
+😱 Tag pasangan kamu yang lagi cari rumah impian!`;
+
+    }
+
+    generatedData[currentTab] =
+      current;
+
+    typeWriter(current);
+
+    showToast(
+      `✨ ${action} applied`
+    );
+
+  });
+
+});
 
 let generatedData = {
 
@@ -2150,37 +2566,79 @@ function typeWriter(text){
 
   tabContent.innerHTML = '';
 
-  let i = 0;
+  /* USER MESSAGE */
 
-  const speed = 10;
+  const userMessage = document.createElement('div');
+
+  userMessage.className =
+    'message user-message';
+
+  userMessage.innerHTML = `
+
+    <div class="bubble user-bubble">
+      Generate ${currentTab} content
+    </div>
+
+  `;
+
+  tabContent.appendChild(userMessage);
+
+  /* AI MESSAGE */
+
+  const aiMessage =
+    document.createElement('div');
+
+  aiMessage.className =
+    'message ai-message';
+
+  aiMessage.innerHTML = `
+
+    <div class="avatar">
+      ✨
+    </div>
+
+    <div class="bubble ai-bubble">
+      <span id="typingText"></span>
+      <span class="typing-cursor">▋</span>
+    </div>
+
+  `;
+
+  tabContent.appendChild(aiMessage);
+
+  const typingText =
+    document.getElementById('typingText');
+
+  let i = 0;
 
   typingInterval = setInterval(() => {
 
-    tabContent.innerHTML =
+    typingText.innerHTML =
       text
       .substring(0, i)
       .replace(/\n/g, '<br>');
 
     i++;
 
-    /* CHAT AUTO SCROLL */
-
-    requestAnimationFrame(() => {
-
-      tabContent.scrollTop =
-        tabContent.scrollHeight;
-
-    });
-
-    /* STOP */
+    tabContent.scrollTop =
+      tabContent.scrollHeight;
 
     if(i > text.length){
 
       clearInterval(typingInterval);
 
+      const cursor =
+        document.querySelector(
+          '.typing-cursor'
+        );
+
+      if(cursor){
+        cursor.remove();
+      }
+
     }
 
-  }, speed);
+  }, 10);
 
 }
 
