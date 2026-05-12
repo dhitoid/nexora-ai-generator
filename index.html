@@ -1315,57 +1315,110 @@ textarea{
 }
 
 /* =========================================
-   CHATGPT PREMIUM UI
+   PREMIUM AI CHAT
 ========================================= */
 
 .chatgpt-box{
 
   position:relative;
 
-  background:
-    linear-gradient(
-      180deg,
-      rgba(255,255,255,0.08),
-      rgba(255,255,255,0.03)
-    );
-
-  border:
-    1px solid rgba(255,255,255,0.08);
-
-  backdrop-filter:
-    blur(24px);
-
   border-radius:28px;
 
   overflow:hidden;
 
+  background:
+    rgba(18,22,35,0.72);
+
+  backdrop-filter:
+    blur(24px);
+
+  border:
+    1px solid rgba(255,255,255,0.06);
+
   box-shadow:
-    0 10px 40px rgba(0,0,0,0.35),
-    inset 0 1px 0 rgba(255,255,255,0.05);
+    0 10px 40px rgba(0,0,0,.35);
 
 }
 
-/* AMBIENT GLOW */
+/* TOP */
 
-.chatgpt-box::before{
+.chat-top{
 
-  content:'';
+  display:flex;
 
-  position:absolute;
+  justify-content:space-between;
 
-  inset:-1px;
+  align-items:center;
+
+  padding:18px;
+
+  border-bottom:
+    1px solid rgba(255,255,255,.06);
 
   background:
-    linear-gradient(
-      135deg,
-      rgba(123,97,255,0.2),
-      rgba(0,194,255,0.12),
-      transparent
-    );
+    rgba(255,255,255,.02);
 
-  z-index:-1;
+}
 
-  filter:blur(40px);
+.ai-label{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:12px;
+
+  font-size:20px;
+
+  font-weight:700;
+
+}
+
+/* ACTIONS */
+
+.chat-actions{
+
+  display:flex;
+
+  gap:10px;
+
+}
+
+.action-btn{
+
+  border:none;
+
+  height:44px;
+
+  padding:0 16px;
+
+  border-radius:14px;
+
+  background:
+    rgba(255,255,255,.06);
+
+  color:white;
+
+  font-weight:600;
+
+  cursor:pointer;
+
+  transition:.25s;
+
+  font-size:14px;
+
+}
+
+.action-btn:hover{
+
+  transform:translateY(-2px);
+
+}
+
+.clear-btn{
+
+  background:
+    rgba(255,80,80,.12);
 
 }
 
@@ -1373,7 +1426,7 @@ textarea{
 
 .chat-content{
 
-  padding:24px;
+  padding:22px;
 
   display:flex;
 
@@ -1381,9 +1434,9 @@ textarea{
 
   gap:18px;
 
-  min-height:400px;
+  min-height:420px;
 
-  max-height:600px;
+  max-height:620px;
 
   overflow-y:auto;
 
@@ -1397,15 +1450,15 @@ textarea{
 
   display:flex;
 
-  gap:14px;
+  align-items:flex-end;
 
-  align-items:flex-start;
+  gap:12px;
 
-  animation:messageUp .3s ease;
+  animation:fadeUp .25s ease;
 
 }
 
-@keyframes messageUp{
+@keyframes fadeUp{
 
   from{
     opacity:0;
@@ -1416,70 +1469,6 @@ textarea{
     opacity:1;
     transform:translateY(0);
   }
-
-}
-
-/* AVATAR */
-
-.avatar{
-
-  width:42px;
-  height:42px;
-
-  border-radius:14px;
-
-  background:
-    linear-gradient(
-      135deg,
-      #7B61FF,
-      #00C2FF
-    );
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  font-size:18px;
-
-  flex-shrink:0;
-
-}
-
-/* BUBBLE */
-
-.bubble{
-
-  padding:18px 20px;
-
-  border-radius:22px;
-
-  line-height:1.9;
-
-  font-size:15px;
-
-  white-space:pre-wrap;
-
-  max-width:85%;
-
-  position:relative;
-
-}
-
-/* AI */
-
-.ai-bubble{
-
-  background:
-    rgba(255,255,255,0.06);
-
-  border:
-    1px solid rgba(255,255,255,0.06);
-
-  color:#E5E7EB;
-
-  border-top-left-radius:8px;
-
-  backdrop-filter:blur(12px);
 
 }
 
@@ -1502,11 +1491,73 @@ textarea{
 
   color:white;
 
+  padding:14px 18px;
+
+  border-radius:22px;
+
   border-bottom-right-radius:8px;
+
+  max-width:78%;
+
+  line-height:1.7;
+
+  font-size:14px;
 
 }
 
-/* SUGGESTION CHIPS */
+/* AI */
+
+.avatar{
+
+  width:38px;
+  height:38px;
+
+  border-radius:12px;
+
+  flex-shrink:0;
+
+  background:
+    linear-gradient(
+      135deg,
+      #7B61FF,
+      #00C2FF
+    );
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-size:16px;
+
+}
+
+.ai-bubble{
+
+  background:
+    rgba(255,255,255,.05);
+
+  border:
+    1px solid rgba(255,255,255,.06);
+
+  padding:16px 18px;
+
+  border-radius:22px;
+
+  border-bottom-left-radius:8px;
+
+  max-width:82%;
+
+  line-height:1.8;
+
+  color:#E8ECF7;
+
+  font-size:14px;
+
+  word-break:break-word;
+
+}
+
+/* SUGGESTIONS */
 
 .suggestion-bar{
 
@@ -1514,12 +1565,12 @@ textarea{
 
   gap:10px;
 
-  padding:18px;
+  overflow-x:auto;
+
+  padding:16px;
 
   border-top:
-    1px solid rgba(255,255,255,0.06);
-
-  overflow-x:auto;
+    1px solid rgba(255,255,255,.06);
 
 }
 
@@ -1536,23 +1587,23 @@ textarea{
   border-radius:999px;
 
   background:
-    rgba(255,255,255,0.06);
+    rgba(255,255,255,.05);
 
   color:white;
 
-  cursor:pointer;
-
   white-space:nowrap;
 
-  transition:0.25s;
+  cursor:pointer;
+
+  transition:.25s;
+
+  font-size:13px;
 
   font-weight:600;
 
 }
 
 .chip-btn:hover{
-
-  transform:translateY(-2px);
 
   background:
     linear-gradient(
@@ -1563,32 +1614,11 @@ textarea{
 
 }
 
-/* NOISE EFFECT */
-
-.chatgpt-box::after{
-
-  content:'';
-
-  position:absolute;
-
-  inset:0;
-
-  opacity:.03;
-
-  pointer-events:none;
-
-  background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='white'%3E%3Ccircle cx='3' cy='3' r='2'/%3E%3C/g%3E%3C/svg%3E");
-
-}
+/* TYPING */
 
 .typing-cursor{
 
-  animation:blink 0.8s infinite;
-
-  color:#8B5CF6;
-
-  font-weight:bold;
+  animation:blink .8s infinite;
 
 }
 
@@ -1600,6 +1630,42 @@ textarea{
 
   51%,100%{
     opacity:0;
+  }
+
+}
+
+/* MOBILE */
+
+@media(max-width:768px){
+
+  .chat-top{
+
+    padding:16px;
+
+  }
+
+  .ai-label{
+
+    font-size:17px;
+
+  }
+
+  .action-btn{
+
+    height:40px;
+
+    padding:0 14px;
+
+    font-size:13px;
+
+  }
+
+  .chat-content{
+
+    padding:18px;
+
+    min-height:360px;
+
   }
 
 }
@@ -1799,23 +1865,25 @@ textarea{
 
   <!-- CHAT AREA -->
 
-  <div id="tabContent" class="chat-content">
+<div id="tabContent" class="chat-content">
 
-    <div class="message ai-message">
+  <div class="message ai-message">
 
-      <div class="avatar">
-        ✨
-      </div>
+    <div class="avatar">
+      ✨
+    </div>
 
-      <div class="bubble ai-bubble">
+    <div class="ai-bubble">
 
-        Welcome to Nexora AI 🚀
-
-      </div>
+      Welcome to Nexora AI 🚀
+      <br><br>
+      Generate high-converting property content instantly.
 
     </div>
 
   </div>
+
+</div>
 
   <!-- SUGGESTION CHIPS -->
 
@@ -2420,68 +2488,87 @@ chipButtons.forEach(btn => {
 
   btn.addEventListener('click', () => {
 
-    const action =
-      btn.innerText;
-
-    let current =
+    let text =
       generatedData[currentTab];
 
-    if(!current){
+    if(!text){
 
       showToast(
-        '⚠️ Generate content first'
+        '⚠️ Generate first'
       );
 
       return;
 
     }
 
+    const action =
+      btn.innerText;
+
+    /* MORE LUXURY */
+
     if(action === 'More Luxury'){
 
-      current += `
+      text = text
+        .replaceAll('rumah','hunian premium')
+        .replaceAll('strategis','elite')
+        .replaceAll('nyaman','eksklusif');
 
-✨ Hunian eksklusif dengan value investasi tinggi dan desain premium modern.`;
+      text += `
+
+✨ Dirancang dengan konsep modern luxury untuk gaya hidup masa kini.`;
 
     }
+
+    /* HARD SELL */
 
     if(action === 'Hard Selling'){
 
-      current += `
+      text += `
 
-🔥 Promo terbatas hari ini. Booking sekarang sebelum harga naik!`;
+🔥 Promo terbatas hari ini.
+Unit terbaik hampir habis.
+Booking sekarang sebelum harga naik!`;
 
     }
 
+    /* SHORTER */
+
     if(action === 'Shorter'){
 
-      current =
-        current
-          .split('.')
-          .slice(0,3)
+      const sentences =
+        text.split('.');
+
+      text =
+        sentences
+          .slice(0,4)
           .join('.') + '.';
 
     }
 
+    /* CTA */
+
     if(action === 'Add CTA'){
 
-      current += `
+      text += `
 
-📩 Chat sekarang untuk cek unit terbaik.`;
+📩 Chat sekarang untuk cek unit dan jadwalkan survey gratis.`;
 
     }
 
+    /* VIRAL */
+
     if(action === 'Make Viral'){
 
-      current += `
+      text += `
 
-😱 Tag pasangan kamu yang lagi cari rumah impian!`;
+😱 Tag pasangan kamu yang lagi cari rumah impian ini!`;
 
     }
 
     generatedData[currentTab] =
-      current;
+      text;
 
-    typeWriter(current);
+    typeWriter(text);
 
     showToast(
       `✨ ${action} applied`
@@ -2568,14 +2655,15 @@ function typeWriter(text){
 
   /* USER MESSAGE */
 
-  const userMessage = document.createElement('div');
+  const userMessage =
+    document.createElement('div');
 
   userMessage.className =
     'message user-message';
 
   userMessage.innerHTML = `
 
-    <div class="bubble user-bubble">
+    <div class="user-bubble">
       Generate ${currentTab} content
     </div>
 
@@ -2597,9 +2685,11 @@ function typeWriter(text){
       ✨
     </div>
 
-    <div class="bubble ai-bubble">
+    <div class="ai-bubble">
+
       <span id="typingText"></span>
       <span class="typing-cursor">▋</span>
+
     </div>
 
   `;
@@ -2607,7 +2697,9 @@ function typeWriter(text){
   tabContent.appendChild(aiMessage);
 
   const typingText =
-    document.getElementById('typingText');
+    document.getElementById(
+      'typingText'
+    );
 
   let i = 0;
 
@@ -2615,8 +2707,8 @@ function typeWriter(text){
 
     typingText.innerHTML =
       text
-      .substring(0, i)
-      .replace(/\n/g, '<br>');
+      .substring(0,i)
+      .replace(/\n/g,'<br>');
 
     i++;
 
@@ -2627,18 +2719,13 @@ function typeWriter(text){
 
       clearInterval(typingInterval);
 
-      const cursor =
-        document.querySelector(
-          '.typing-cursor'
-        );
-
-      if(cursor){
-        cursor.remove();
-      }
+      document
+        .querySelector('.typing-cursor')
+        ?.remove();
 
     }
 
-  }, 10);
+  }, 8);
 
 }
 
